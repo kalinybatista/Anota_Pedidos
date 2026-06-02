@@ -1,0 +1,946 @@
+﻿@{
+    ViewData["Title"] = "Meu Perfil";
+    var adminEmail = Context.Session.GetString("AdminEmail") ?? "admin@alfaprime.com";
+    var adminNome = Context.Session.GetString("AdminNome") ?? "Administrador";
+}
+
+@section Styles {
+    <style>
+        /* Estilos específicos da página de Perfil */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            min-height: calc(100vh - 80px);
+        }
+
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .profile-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--secondary), #fb923c);
+            }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+            .profile-header i {
+                font-size: 2rem;
+                color: var(--secondary);
+                background: #fff7ed;
+                padding: 1rem;
+                border-radius: 20px;
+            }
+
+            .profile-header h1 {
+                font-size: 1.8rem;
+                color: var(--primary);
+                font-weight: 600;
+            }
+
+        .avatar-section {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--secondary), #ea580c);
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+            border: 4px solid white;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border: 3px solid white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+            .avatar-edit:hover {
+                background: var(--secondary);
+                transform: scale(1.1);
+            }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+            .form-label i {
+                color: var(--secondary);
+            }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--bg-light);
+        }
+
+            .form-input:focus {
+                outline: none;
+                border-color: var(--secondary);
+                box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+                background: white;
+            }
+
+            .form-input:disabled {
+                background: #f1f5f9;
+                color: var(--text-muted);
+                cursor: not-allowed;
+            }
+
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+            .password-toggle:hover {
+                color: var(--secondary);
+            }
+
+        .security-section {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 2px dashed var(--border-light);
+        }
+
+        .security-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+            .security-header i {
+                font-size: 1.5rem;
+                color: var(--secondary);
+            }
+
+            .security-header h3 {
+                font-size: 1.2rem;
+                color: var(--primary);
+            }
+
+        .security-info {
+            background: #fff7ed;
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            border-left: 4px solid var(--secondary);
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+            .security-info i {
+                color: var(--secondary);
+                font-size: 1.2rem;
+            }
+
+        .code-inputs {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .code-digit {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--primary);
+            background: white;
+            transition: var(--transition);
+        }
+
+            .code-digit:focus {
+                outline: none;
+                border-color: var(--secondary);
+                box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+            }
+
+            .code-digit.error {
+                border-color: var(--danger);
+                animation: shake 0.3s ease;
+            }
+
+        @@keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .code-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .timer {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .timer i {
+                color: var(--secondary);
+            }
+
+        .btn-link {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+            .btn-link:hover:not(:disabled) {
+                color: #ea580c;
+                text-decoration: underline;
+            }
+
+            .btn-link:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+            .btn-primary:hover:not(:disabled) {
+                background: #ea580c;
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px -5px var(--secondary);
+            }
+
+            .btn-primary:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+            .btn-success:hover {
+                background: #16a34a;
+            }
+
+        .btn-enviar {
+            background: linear-gradient(135deg, var(--secondary), #ea580c);
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            margin-top: 1rem;
+        }
+
+            .btn-save:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+        .alert {
+            padding: 1rem 1.2rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border-left: 4px solid var(--success);
+            color: #166534;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            color: #1e40af;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .profile-footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @@media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .profile-card {
+                padding: 1.5rem;
+            }
+
+            .profile-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+
+            .code-digit {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+                .profile-header i {
+                    padding: 0.8rem;
+                }
+
+                .profile-header h1 {
+                    font-size: 1.3rem;
+                }
+
+            .code-inputs {
+                gap: 0.3rem;
+            }
+
+            .code-digit {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .code-footer {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+
+            .security-section {
+                padding: 1rem;
+            }
+        }
+    </style>
+}
+
+<main class="main-content">
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <i class="fas fa-user-circle"></i>
+                <h1>Meu Perfil</h1>
+            </div>
+
+            <div class="avatar-section">
+                <div class="avatar" id="avatarDisplay">
+                    A
+                    <div class="avatar-edit" onclick="editarAvatar()">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <form id="profileForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user"></i> Nome completo</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="nomeInput" class="form-input" placeholder="Digite seu nome" disabled>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-envelope"></i> E-mail</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="emailInput" class="form-input" placeholder="seu@email.com" disabled>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-lock"></i> Nova senha (opcional)</label>
+                    <div class="password-field">
+                        <i class="fas fa-key input-icon"></i>
+                        <input type="password" id="senhaInput" class="form-input" placeholder="********" disabled>
+                        <button type="button" class="password-toggle" onclick="toggleSenha()">
+                            <i class="fas fa-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="profile-footer">
+                    <i class="far fa-clock"></i>
+                    <span>Cadastrado em: </span>
+                    <span id="footerDate">--/--/---- --:--</span>
+                </div>
+
+                <!-- Seção de Segurança -->
+                <div class="security-section">
+                    <div class="security-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Verificação de segurança</h3>
+                    </div>
+
+                    <div class="security-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Digite o código enviado para <strong id="emailDisplay">@adminEmail</strong></span>
+                    </div>
+
+                    <!-- Botão ENVIAR CÓDIGO -->
+                    <button type="button" class="btn btn-enviar" id="enviarCodigoBtn" onclick="enviarCodigo()">
+                        <i class="fas fa-paper-plane"></i>
+                        Enviar código
+                    </button>
+
+                    <!-- Inputs do código (inicialmente desabilitados) -->
+                    <div class="code-inputs" id="codeInputs" style="display: none;">
+                        <input type="text" class="code-digit" maxlength="1" id="code1" onkeyup="moveToNext(this, 'code2')" onkeydown="handleBackspace(event, 'code1')" disabled>
+                        <input type="text" class="code-digit" maxlength="1" id="code2" onkeyup="moveToNext(this, 'code3')" onkeydown="handleBackspace(event, 'code1')" disabled>
+                        <input type="text" class="code-digit" maxlength="1" id="code3" onkeyup="moveToNext(this, 'code4')" onkeydown="handleBackspace(event, 'code2')" disabled>
+                        <input type="text" class="code-digit" maxlength="1" id="code4" onkeyup="moveToNext(this, 'code5')" onkeydown="handleBackspace(event, 'code3')" disabled>
+                        <input type="text" class="code-digit" maxlength="1" id="code5" onkeyup="moveToNext(this, 'code6')" onkeydown="handleBackspace(event, 'code4')" disabled>
+                        <input type="text" class="code-digit" maxlength="1" id="code6" onkeyup="verificarCompleto()" onkeydown="handleBackspace(event, 'code5')" disabled>
+                    </div>
+
+                    <!-- Timer e reenvio -->
+                    <div class="code-footer" id="codeFooter" style="display: none;">
+                        <div class="timer">
+                            <i class="far fa-clock"></i>
+                            <span id="timerDisplay">05:00</span>
+                        </div>
+                        <button type="button" class="btn-link" id="reenviarBtn" onclick="reenviarCodigo()" disabled>
+                            <i class="fas fa-redo-alt"></i> Reenviar código
+                        </button>
+                    </div>
+
+                    <!-- Botão verificar -->
+                    <button type="button" class="btn btn-primary" id="verificarBtn" onclick="verificarCodigo()" style="display: none;" disabled>
+                        <i class="fas fa-check-circle"></i> Verificar código
+                    </button>
+                </div>
+
+                <!-- Botão salvar -->
+                <button type="button" class="btn btn-save" id="saveButton" onclick="salvarAlteracoes()" disabled>
+                    <i class="fas fa-save"></i> Salvar alterações
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        // Elementos DOM
+        const nomeInput = document.getElementById('nomeInput');
+        const emailInput = document.getElementById('emailInput');
+        const senhaInput = document.getElementById('senhaInput');
+        const avatarDisplay = document.getElementById('avatarDisplay');
+        const saveButton = document.getElementById('saveButton');
+        const alertContainer = document.getElementById('alertContainer');
+        const verificarBtn = document.getElementById('verificarBtn');
+        const reenviarBtn = document.getElementById('reenviarBtn');
+        const enviarCodigoBtn = document.getElementById('enviarCodigoBtn');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const codeInputs = document.getElementById('codeInputs');
+        const codeFooter = document.getElementById('codeFooter');
+
+        let codigoVerificado = false;
+        let timeLeft = 300;
+        let timerInterval;
+
+        // ===== CARREGAR DADOS DO PERFIL =====
+        async function carregarDadosPerfil() {
+            try {
+                showLoading();
+                const response = await fetch('/Perfil/ObterDados');
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    nomeInput.value = data.nome;
+                    emailInput.value = data.email;
+                    avatarDisplay.textContent = data.nome.charAt(0).toUpperCase();
+
+                    const emailDisplay = document.getElementById('emailDisplay');
+                    if (emailDisplay && data.email) {
+                        emailDisplay.textContent = data.email;
+                    }
+
+                    const footerDate = document.getElementById('footerDate');
+                    if (footerDate && data.dataCadastro) {
+                        footerDate.textContent = data.dataCadastro;
+                    }
+                } else {
+                    showAlert('error', data.message);
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', 'Erro ao carregar dados');
+            }
+        }
+
+        // ===== FUNÇÕES DO TIMER =====
+        function iniciarTimer() {
+            timeLeft = 300;
+            atualizarTimer();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                atualizarTimer();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    reenviarBtn.disabled = false;
+                    timerDisplay.textContent = '00:00';
+                }
+            }, 1000);
+        }
+
+        function atualizarTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // ===== FUNÇÕES DO CÓDIGO =====
+        function moveToNext(current, nextId) {
+            if (current.value.length === 1) {
+                document.getElementById(nextId)?.focus();
+                verificarCompleto();
+            }
+        }
+
+        function handleBackspace(event, prevId) {
+            if (event.key === 'Backspace' && event.target.value === '') {
+                document.getElementById(prevId)?.focus();
+            }
+        }
+
+        function verificarCompleto() {
+            const inputs = document.querySelectorAll('.code-digit');
+            let codigo = '';
+            inputs.forEach(input => codigo += input.value);
+            if (verificarBtn) verificarBtn.disabled = codigo.length !== 6;
+        }
+
+        function getCodigo() {
+            let codigo = '';
+            document.querySelectorAll('.code-digit').forEach(input => codigo += input.value);
+            return codigo;
+        }
+
+        // ===== FUNÇÕES DE ALERTA =====
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i><span>${message}</span>`;
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+            setTimeout(() => {
+                if (alertDiv.parentNode) alertDiv.remove();
+            }, 5000);
+        }
+
+        // ===== FUNÇÕES DO FORMULÁRIO =====
+        function toggleSenha() {
+            const type = senhaInput.type === 'password' ? 'text' : 'password';
+            senhaInput.type = type;
+            const icon = document.getElementById('toggleIcon');
+            icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+        }
+
+        function editarAvatar() {
+            showAlert('info', '📸 Funcionalidade em breve!');
+        }
+
+        // ===== ENVIAR CÓDIGO (SOMENTE QUANDO CLICAR NO BOTÃO) =====
+        async function enviarCodigo() {
+            showLoading();
+            try {
+                const response = await fetch('/Perfil/EnviarCodigo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    showAlert('success', data.message);
+
+                    // Mostrar os inputs do código
+                    codeInputs.style.display = 'flex';
+                    codeFooter.style.display = 'flex';
+                    verificarBtn.style.display = 'block';
+
+                    // Esconder o botão de enviar código
+                    enviarCodigoBtn.style.display = 'none';
+
+                    iniciarTimer();
+                    reenviarBtn.disabled = true;
+                    verificarBtn.disabled = true;
+
+                    document.querySelectorAll('.code-digit').forEach(input => {
+                        input.disabled = false;
+                        input.value = '';
+                        input.classList.remove('error');
+                    });
+                    document.getElementById('code1')?.focus();
+                } else {
+                    showAlert('error', data.message);
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', 'Erro ao enviar código');
+            }
+        }
+
+        // ===== VERIFICAR CÓDIGO =====
+        async function verificarCodigo() {
+            const codigo = getCodigo();
+
+            if (codigo.length !== 6) {
+                showAlert('error', 'Digite o código completo!');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('/Perfil/VerificarCodigo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codigo: codigo })
+                });
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    document.querySelectorAll('.code-digit').forEach(input => {
+                        input.classList.remove('error');
+                    });
+
+                    codigoVerificado = true;
+
+                    nomeInput.disabled = false;
+                    emailInput.disabled = false;
+                    senhaInput.disabled = false;
+                    saveButton.disabled = false;
+
+                    document.querySelectorAll('.code-digit').forEach(input => {
+                        input.disabled = true;
+                    });
+
+                    verificarBtn.disabled = true;
+                    verificarBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verificado!';
+                    verificarBtn.classList.add('btn-success');
+
+                    showAlert('success', '✅ Código verificado! Agora você pode editar seus dados.');
+                } else {
+                    document.querySelectorAll('.code-digit').forEach(input => {
+                        input.classList.add('error');
+                        input.value = '';
+                    });
+                    document.getElementById('code1')?.focus();
+                    showAlert('error', data.message);
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', 'Erro ao verificar código');
+            }
+        }
+
+        // ===== REENVIAR CÓDIGO =====
+        async function reenviarCodigo() {
+            showLoading();
+            try {
+                const response = await fetch('/Perfil/ReenviarCodigo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    showAlert('success', data.message);
+
+                    // Resetar timer
+                    if (timerInterval) clearInterval(timerInterval);
+                    iniciarTimer();
+                    reenviarBtn.disabled = true;
+                    verificarBtn.disabled = true;
+
+                    document.querySelectorAll('.code-digit').forEach(input => {
+                        input.value = '';
+                        input.classList.remove('error');
+                    });
+                    document.getElementById('code1')?.focus();
+                } else {
+                    showAlert('error', data.message);
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', 'Erro ao reenviar código');
+            }
+        }
+
+        // ===== SALVAR ALTERAÇÕES =====
+        async function salvarAlteracoes() {
+            if (!codigoVerificado) {
+                showAlert('error', '❌ Verifique o código de segurança primeiro!');
+                return;
+            }
+
+            const nome = nomeInput.value.trim();
+            const email = emailInput.value.trim();
+            const senha = senhaInput.value.trim();
+
+            if (!nome) {
+                showAlert('error', '❌ Digite seu nome!');
+                return;
+            }
+
+            if (!email) {
+                showAlert('error', '❌ Digite seu e-mail!');
+                return;
+            }
+
+            if (!email.includes('@@') || !email.includes('.')) {
+                showAlert('error', '❌ E-mail inválido!');
+                return;
+            }
+
+            if (senha && senha.length < 8) {
+                showAlert('error', '❌ A senha deve ter no mínimo 8 caracteres!');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('/Perfil/Atualizar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome: nome, email: email, senha: senha })
+                });
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    avatarDisplay.textContent = nome.charAt(0).toUpperCase();
+                    showAlert('success', data.message);
+
+                    nomeInput.disabled = true;
+                    emailInput.disabled = true;
+                    senhaInput.disabled = true;
+                    saveButton.disabled = true;
+                    codigoVerificado = false;
+
+                    // Resetar UI
+                    document.querySelectorAll('.code-digit').forEach(input => {
+                        input.value = '';
+                        input.disabled = true;
+                        input.classList.remove('error');
+                    });
+
+                    codeInputs.style.display = 'none';
+                    codeFooter.style.display = 'none';
+                    verificarBtn.style.display = 'none';
+                    enviarCodigoBtn.style.display = 'block';
+
+                    verificarBtn.disabled = true;
+                    verificarBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verificar código';
+                    verificarBtn.classList.remove('btn-success');
+
+                    const emailDisplay = document.getElementById('emailDisplay');
+                    if (emailDisplay && email) {
+                        emailDisplay.textContent = email;
+                    }
+                } else {
+                    showAlert('error', data.message);
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', 'Erro ao salvar alterações');
+            }
+        }
+
+        // ===== INICIALIZAR =====
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarDadosPerfil();
+        });
+    </script>
+}

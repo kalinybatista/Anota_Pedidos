@@ -1,0 +1,585 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alfa Prime • Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #f97316;
+            --secondary-light: #fb923c;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-dark: #0b1120;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-light: #e2e8f0;
+            --border-focus: #f97316;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow: 0 10px 40px -15px rgba(0,0,0,0.2);
+            --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --shadow-xl: 0 35px 60px -15px rgba(0,0,0,0.3);
+            --radius-sm: 12px;
+            --radius: 20px;
+            --radius-lg: 32px;
+            --radius-xl: 40px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--primary), #1a2a4a);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 1.5rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .login-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: linear-gradient(90deg, var(--secondary), #fb923c, var(--secondary));
+            }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--secondary), #ea580c);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2.5rem;
+            box-shadow: 0 20px 30px -10px rgba(249, 115, 22, 0.3);
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+
+            .logo-text span {
+                color: var(--secondary);
+            }
+
+        .logo-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+            .login-title h2 {
+                font-size: 1.8rem;
+                color: var(--primary);
+                margin-bottom: 0.5rem;
+            }
+
+            .login-title p {
+                color: var(--text-muted);
+                font-size: 0.95rem;
+            }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+            .form-label i {
+                color: var(--secondary);
+            }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1.2rem 1.2rem 1.2rem 3rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--bg-light);
+        }
+
+            .form-input:focus {
+                outline: none;
+                border-color: var(--secondary);
+                box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+                background: white;
+            }
+
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+            .password-toggle:hover {
+                color: var(--secondary);
+            }
+
+        .login-options {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .forgot-password {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+            .forgot-password:hover {
+                color: #ea580c;
+                text-decoration: underline;
+            }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, var(--secondary), #ea580c);
+            color: white;
+            border: none;
+            padding: 1.2rem;
+            border-radius: var(--radius);
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+            .btn-login:hover:not(:disabled) {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 30px -5px rgba(249, 115, 22, 0.4);
+            }
+
+            .btn-login:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .alert {
+            padding: 1rem 1.2rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border-left: 4px solid var(--success);
+            color: #166534;
+        }
+
+        .loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            animation: loading 1.5s ease-in-out infinite;
+            display: none;
+            z-index: 2000;
+        }
+
+        @@keyframes loading {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsivo */
+        @@media (max-width: 768px) {
+            .login-container {
+                max-width: 500px;
+                padding: 1rem;
+            }
+
+            .login-card {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .login-container {
+                max-width: 100%;
+                padding: 1rem;
+            }
+
+            .login-card {
+                padding: 1.5rem 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-bar" id="loadingBar"></div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-title">
+                <h2>Bem-vindo de volta</h2>
+                <p>Faça login para acessar o painel</p>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-envelope"></i>
+                        E-mail
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email"
+                               id="emailInput"
+                               class="form-input"
+                               placeholder="admin@gmail.com"
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-lock"></i>
+                        Senha
+                    </label>
+                    <div class="password-field">
+                        <i class="fas fa-key input-icon"></i>
+                        <input type="password"
+                               id="passwordInput"
+                               class="form-input"
+                               placeholder="••••••••"
+                               required>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="login-options">
+                    <a class="forgot-password" onclick="esqueciSenha(event)">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginButton">
+                    <span>Entrar no sistema</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Token CSRF -->
+    @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+    @{
+        var requestToken = antiforgery.GetAndStoreTokens(Context).RequestToken;
+    }
+
+    <script>
+        // Token global para AJAX
+        window.antiForgeryToken = '@requestToken';
+
+        // Interceptar todos os fetches
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options = {}) {
+            if (options.method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(options.method.toUpperCase())) {
+                options.headers = {
+                    ...options.headers,
+                    'X-CSRF-TOKEN': window.antiForgeryToken,
+                    'RequestVerificationToken': window.antiForgeryToken
+                };
+            }
+            return originalFetch(url, options);
+        };
+
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginButton = document.getElementById('loginButton');
+        const alertContainer = document.getElementById('alertContainer');
+        const loadingBar = document.getElementById('loadingBar');
+
+        function showLoading() {
+            loadingBar.style.display = 'block';
+        }
+
+        function hideLoading() {
+            setTimeout(() => {
+                loadingBar.style.display = 'none';
+            }, 300);
+        }
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            return re.test(email);
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                showAlert('error', 'Preencha todos os campos!');
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                showAlert('error', 'E-mail inválido!');
+                return;
+            }
+
+            loginButton.disabled = true;
+            loginButton.innerHTML = `<div class="spinner"></div><span>Entrando...</span>`;
+            showLoading();
+
+            try {
+                const response = await fetch('/Login/Login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, senha: password })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    showAlert('success', data.message);
+
+                    setTimeout(() => {
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo;
+                        } else if (data.temEstabelecimento) {
+                            window.location.href = '/Admin/Pedidos';
+                        } else {
+                            window.location.href = '/Estabelecimento/Configurar';
+                        }
+                    }, 1500);
+                } else {
+                    showAlert('error', data.message);
+                    loginButton.disabled = false;
+                    loginButton.innerHTML = `<span>Entrar no sistema</span><i class="fas fa-arrow-right"></i>`;
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', 'Erro ao conectar com o servidor');
+                loginButton.disabled = false;
+                loginButton.innerHTML = `<span>Entrar no sistema</span><i class="fas fa-arrow-right"></i>`;
+            }
+        }
+
+        function esqueciSenha(event) {
+            event.preventDefault();
+            const email = emailInput.value.trim();
+
+            if (!email) {
+                showAlert('error', 'Digite seu e-mail para recuperar a senha');
+                emailInput.focus();
+                return;
+            }
+
+            showLoading();
+
+            fetch('/Login/RecuperarSenha', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                showAlert(data.success ? 'success' : 'error', data.message);
+            })
+            .catch(() => {
+                hideLoading();
+                showAlert('error', 'Erro ao processar solicitação');
+            });
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin(e);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+﻿@using Anota_Pedidos.Models
+@using System.Text.Json
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+<!-- Adicionar no final do <body> -->
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+@{
+    var requestToken = antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
+@{
+    // Obter estabelecimento da sessão usando o DTO
+    var estabelecimentoJson = HttpContextAccessor.HttpContext?.Session.GetString("Estabelecimento");
+    EstabelecimentoSessionDTO estabelecimento = null;
+
+    if (!string.IsNullOrEmpty(estabelecimentoJson))
+    {
+        estabelecimento = JsonSerializer.Deserialize<EstabelecimentoSessionDTO>(estabelecimentoJson);
+    }
+
+    // Verificar se o admin está logado
+    var adminId = HttpContextAccessor.HttpContext?.Session.GetInt32("AdminId");
+    bool isAuthenticated = adminId.HasValue && adminId.Value > 0;
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alfa Prime • @ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== ESTILOS GLOBAIS ===== */
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #f97316;
+            --secondary-light: #fb923c;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-dark: #0b1120;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-light: #e2e8f0;
+            --border-focus: #f97316;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow: 0 10px 40px -15px rgba(0,0,0,0.2);
+            --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --shadow-xl: 0 35px 60px -15px rgba(0,0,0,0.3);
+            --radius-sm: 12px;
+            --radius: 20px;
+            --radius-lg: 32px;
+            --radius-xl: 40px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* ===== APP BAR ===== */
+        .app-bar {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: var(--shadow);
+        }
+
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+
+        .establishment-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .establishment-photo:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+            }
+
+            .establishment-photo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .establishment-photo i {
+                font-size: 1.2rem;
+                color: var(--secondary);
+            }
+
+        .app-title h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+            .menu-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: scale(1.05);
+            }
+
+        /* ===== SIDE MENU ===== */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            height: 100vh;
+            background: white;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-xl);
+            z-index: 1000;
+            padding: 2rem 0;
+            overflow-y: auto;
+        }
+
+            .side-menu.show {
+                right: 0;
+            }
+
+        .menu-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 2px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .menu-header h2 {
+                font-size: 1.5rem;
+                color: var(--primary);
+                font-weight: 700;
+            }
+
+        .close-btn {
+            background: var(--bg-light);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+            .close-btn:hover {
+                background: #e2e8f0;
+                transform: rotate(90deg);
+            }
+
+        .menu-section {
+            padding: 1.5rem;
+        }
+
+            .menu-section h3 {
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: var(--text-muted);
+                margin-bottom: 1rem;
+            }
+
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 16px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+            .menu-item i {
+                width: 24px;
+                color: var(--secondary);
+            }
+
+            .menu-item:hover {
+                background: var(--bg-light);
+                transform: translateX(-5px);
+            }
+
+            .menu-item.active {
+                background: linear-gradient(90deg, #fff7ed, white);
+                border-left: 4px solid var(--secondary);
+            }
+
+            .menu-item.logout {
+                color: var(--danger);
+                border-top: 2px solid var(--border-light);
+                border-radius: 0;
+                margin-top: 1rem;
+            }
+
+                .menu-item.logout i {
+                    color: var(--danger);
+                }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+            .menu-overlay.show {
+                display: block;
+                opacity: 1;
+            }
+
+        /* ===== MAIN CONTENT ===== */
+        .main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* ===== UTILITÁRIOS ===== */
+        .loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            animation: loading 1.5s ease-in-out infinite;
+            display: none;
+            z-index: 2000;
+        }
+
+        @@keyframes loading {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            z-index: 3000;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: var(--shadow);
+        }
+
+            .toast-notification.success {
+                background: var(--success);
+            }
+
+            .toast-notification.error {
+                background: var(--danger);
+            }
+
+        @@keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .main {
+                padding: 1rem;
+            }
+
+            .side-menu {
+                width: 280px;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .app-bar {
+                padding: 0.8rem 1rem;
+            }
+
+            .app-title h1 {
+                font-size: 1.1rem;
+            }
+
+            .establishment-photo {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="loading-bar" id="loadingBar"></div>
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+    @if (isAuthenticated)
+    {
+        <!-- SÓ MOSTRA O MENU SE ESTIVER LOGADO -->
+        <div class="app-bar">
+            <div class="app-title" onclick="window.location.href='/Admin/Pedidos'">
+                <div class="establishment-photo">
+                    @if (estabelecimento != null && !string.IsNullOrEmpty(estabelecimento.Img_Estabelecimento))
+                    {
+                        <img src="@estabelecimento.Img_Estabelecimento" alt="Foto">
+                    }
+                    else
+                    {
+                        <i class="fas fa-store"></i>
+                    }
+                </div>
+                <h1>@(estabelecimento?.Nome_Estabelecimento ?? "Alfa Prime")</h1>
+            </div>
+            <button class="menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="side-menu" id="sideMenu">
+            <div class="menu-header">
+                <h2>Menu</h2>
+                <button class="close-btn" onclick="toggleMenu()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="menu-section">
+                <h3>Principal</h3>
+                <div class="menu-items">
+                    <a href="/Admin/Pedidos" class="menu-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Pedidos" ? "active" : "")">
+                        <i class="fas fa-clipboard-list"></i><span>Pedidos</span>
+                    </a>
+                    <a href="/Admin/Receber" class="menu-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Receber" ? "active" : "")">
+                        <i class="fas fa-cash-register"></i><span>Receber</span>
+                    </a>
+                    <a href="/Admin/Vendas" class="menu-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Vendas" ? "active" : "")">
+                        <i class="fas fa-chart-bar"></i><span>Vendas</span>
+                    </a>
+                </div>
+            </div>
+            <div class="menu-section">
+                <h3>Cardápio</h3>
+                <div class="menu-items">
+                    <a href="/Editar/Visualizar" class="menu-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Visualizar" ? "active" : "")">
+                        <i class="fas fa-book-open"></i><span>Visualizar</span>
+                    </a>
+                    <a href="/Editar/Editar" class="menu-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Editar" ? "active" : "")">
+                        <i class="fas fa-pencil-alt"></i><span>Editar</span>
+                    </a>
+                </div>
+            </div>
+            <div class="menu-section">
+                <h3>Configurações</h3>
+                <div class="menu-items">
+                    <a href="/Estabelecimento/Estabelecimento" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Estabelecimento" ? "active" : "")">
+                        <i class="fas fa-store"></i><span>Estabelecimento</span>
+                    </a>
+                    <a href="/Perfil/Perfil" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Perfil" ? "active" : "")">
+                        <i class="fas fa-user"></i><span>Perfil</span>
+                    </a>
+                </div>
+            </div>
+            <div class="menu-section">
+                <a href="/Login/Logout" class="menu-item logout">
+                    <i class="fas fa-sign-out-alt"></i><span>Sair</span>
+                </a>
+            </div>
+        </div>
+    }
+ 
+
+    <main class="main">
+        @RenderBody()
+    </main>
+
+    <div id="toastContainer" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 3000;"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        // 🔥 Token global disponível em TODAS as views!
+        window.antiForgeryToken = '@requestToken';
+
+        // Interceptar todos os fetches
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options = {}) {
+            if (options.method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(options.method.toUpperCase())) {
+                options.headers = {
+                    ...options.headers,
+                    'X-CSRF-TOKEN': window.antiForgeryToken,
+                    'RequestVerificationToken': window.antiForgeryToken
+                };
+            }
+            return originalFetch(url, options);
+        };
+
+        // ===== FUNÇÕES GLOBAIS =====
+        function toggleMenu() {
+            const menu = document.getElementById('sideMenu');
+            const overlay = document.getElementById('menuOverlay');
+            if (menu && overlay) {
+                menu.classList.toggle('show');
+                overlay.classList.toggle('show');
+                document.body.style.overflow = menu.classList.contains('show') ? 'hidden' : '';
+            }
+        }
+
+        function showLoading() {
+            const loading = document.getElementById('loadingBar');
+            if (loading) loading.style.display = 'block';
+        }
+
+        function hideLoading() {
+            setTimeout(() => {
+                const loading = document.getElementById('loadingBar');
+                if (loading) loading.style.display = 'none';
+            }, 500);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            let icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Fechar menu ao clicar fora (só se o menu existir)
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('sideMenu');
+            const menuBtn = document.querySelector('.menu-btn');
+            const overlay = document.getElementById('menuOverlay');
+            if (menu && menuBtn && overlay && !menu.contains(event.target) && !menuBtn.contains(event.target) && menu.classList.contains('show')) {
+                toggleMenu();
+            }
+        });
+
+        // Fechar com ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const menu = document.getElementById('sideMenu');
+                if (menu && menu.classList.contains('show')) toggleMenu();
+            }
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

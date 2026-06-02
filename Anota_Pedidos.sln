@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anota_Pedidos", "Anota_Pedidos\Anota_Pedidos.csproj", "{110DF490-6EB1-4C8B-81A2-0E8FC36F3E55}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{110DF490-6EB1-4C8B-81A2-0E8FC36F3E55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{110DF490-6EB1-4C8B-81A2-0E8FC36F3E55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{110DF490-6EB1-4C8B-81A2-0E8FC36F3E55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{110DF490-6EB1-4C8B-81A2-0E8FC36F3E55}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C198D1FC-9052-402B-9780-EE0BCBE7D5B5}
+	EndGlobalSection
+EndGlobal

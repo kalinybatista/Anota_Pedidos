@@ -1,0 +1,1021 @@
+﻿@model List<Anota_Pedidos.Models.PedidoModel>
+@using System.Text.Json
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Anota_Pedidos.Models
+
+@{
+    ViewData["Title"] = "Meus Pedidos";
+    Layout = null;
+    var telefone = ViewBag.Telefone as string;
+
+    // Obter estabelecimento da sessão
+    var estabelecimentoJson = Context.Session.GetString("Estabelecimento");
+    EstabelecimentoSessionDTO estabelecimento = null;
+
+    if (!string.IsNullOrEmpty(estabelecimentoJson))
+    {
+        estabelecimento = JsonSerializer.Deserialize<EstabelecimentoSessionDTO>(estabelecimentoJson);
+    }
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alfa Prime • Meus Pedidos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #f97316;
+            --secondary-light: #fb923c;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-light: #e2e8f0;
+            --shadow: 0 10px 40px -15px rgba(0,0,0,0.2);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-lg: 32px;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+
+        .app-bar {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: var(--shadow);
+        }
+
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+
+        .app-title i {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .app-title h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+
+            background: linear-gradient(135deg, #fff, #f97316);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 220px;
+        }
+
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+
+        /* ==================== SEARCH ==================== */
+        .search-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-light);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            min-width: 200px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .btn-search {
+            min-height: 48px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+
+        .btn-search:hover {
+            background: #ea580c;
+            transform: translateY(-2px);
+        }
+
+
+
+
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+        }
+
+
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px dashed var(--border-light);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .order-code {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-code h3 {
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        .order-code span {
+            background: var(--bg-light);
+            padding: 0.3rem 0.8rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-aguardando { background: #fed7aa; color: #9a3412; }
+        .status-preparo { background: #fef08a; color: #854d0e; }
+        .status-pronto { background: #d1fae5; color: #065f46; }
+        .status-finalizado { background: #e2e8f0; color: #475569; }
+
+        .order-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .info-item i {
+            width: 20px;
+            color: var(--secondary);
+        }
+
+        .order-items {
+            background: var(--bg-light);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.9rem;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-item span:first-child {
+            flex: 1;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .total-value {
+            color: var(--secondary);
+            font-size: 1.3rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            animation: loading 1.5s infinite;
+            display: none;
+            z-index: 2000;
+        }
+
+        @@keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+
+        /* ==================== TOAST ==================== */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: calc(20px + env(safe-area-inset-bottom));
+            transform: translateX(-50%) translateY(30px);
+
+            background: var(--primary);
+            color: white;
+
+            padding: 0.85rem 1.2rem;
+            border-radius: 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+
+            width: max-content;
+            max-width: calc(100vw - 32px);
+
+            font-size: 0.92rem;
+            text-align: center;
+            line-height: 1.4;
+
+            box-shadow: 0 10px 25px rgba(0,0,0,0.22);
+
+            z-index: 3000;
+
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+
+            transition:
+                opacity 0.25s ease,
+                transform 0.25s ease,
+                visibility 0.25s ease;
+
+            word-break: break-word;
+            overflow-wrap: break-word;
+
+            will-change: transform, opacity;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ==================== RESPONSIVO ==================== */
+        @@media (max-width: 768px) {
+
+            .main {
+                padding: 1rem;
+            }
+
+            .page-header {
+                margin-bottom: 1.5rem;
+            }
+
+                .page-header h2 {
+                    font-size: 1.5rem;
+                    gap: 0.5rem;
+                }
+
+            .search-section {
+                padding: 1rem;
+                border-radius: 18px;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 0.95rem;
+                font-size: 1rem;
+            }
+
+            .btn-search {
+                width: 100%;
+                justify-content: center;
+                padding: 0.95rem 1rem;
+                font-size: 1rem;
+                min-height: 48px;
+            }
+
+            .order-card {
+                padding: 1rem;
+                border-radius: 20px;
+            }
+
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.8rem;
+            }
+
+            .order-code {
+                width: 100%;
+                justify-content: space-between;
+                gap: 1rem;
+            }
+
+                .order-code h3 {
+                    font-size: 1.1rem;
+                }
+
+            .order-info {
+                grid-template-columns: 1fr;
+                gap: 0.7rem;
+            }
+
+            .order-total {
+                font-size: 1rem;
+            }
+
+            .total-value {
+                font-size: 1.15rem;
+            }
+
+            .app-bar {
+                gap: 0.8rem;
+            }
+
+            .app-title {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+
+                flex: 1;
+                min-width: 0;
+            }
+
+             .app-title h1 {
+                flex: 1;
+                min-width: 0;
+                max-width: 100%;
+
+                font-size: 0.95rem;
+
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .establishment-photo {
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                flex-shrink: 0;
+            }
+
+            .cart-btn {
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                flex-shrink: 0;
+            }
+
+            .toast {
+                width: calc(100vw - 24px);
+                max-width: 420px;
+                padding: 0.85rem 1rem;
+                font-size: 0.85rem;
+                border-radius: 16px;
+                bottom: calc(16px + env(safe-area-inset-bottom));
+            }
+        }
+
+        @@media (max-width: 480px) {
+
+            .main {
+                padding: 0.8rem;
+            }
+
+            .page-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .search-section {
+                padding: 0.9rem;
+                border-radius: 16px;
+            }
+
+            .search-input {
+                padding: 0.85rem;
+                font-size: 0.92rem;
+            }
+
+            .btn-search {
+                padding: 0.85rem;
+                font-size: 0.92rem;
+            }
+
+            .app-title h1 {
+                flex: 1;
+                min-width: 0;
+                max-width: 100%;
+
+                font-size: 0.95rem;
+
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .app-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+
+            flex: 1;
+            min-width: 0;
+        }
+
+            .order-card {
+                padding: 0.9rem;
+            }
+
+            .order-code {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+                .order-code span {
+                    font-size: 0.72rem;
+                }
+
+            .status-badge {
+                font-size: 0.78rem;
+                padding: 0.35rem 0.8rem;
+            }
+
+            .info-item {
+                font-size: 0.85rem;
+            }
+
+            .order-item {
+                font-size: 0.82rem;
+            }
+
+            .order-total {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .total-value {
+                font-size: 1.05rem;
+            }
+
+            .toast {
+                width: calc(100vw - 20px);
+                padding: 0.8rem 0.9rem;
+                font-size: 0.8rem;
+                border-radius: 14px;
+                gap: 0.5rem;
+            }
+
+                .toast i {
+                    font-size: 0.9rem;
+                    flex-shrink: 0;
+                }
+        }
+
+
+        @@media (hover: hover) {
+            .btn-search:hover
+
+        {
+            background: #ea580c;
+            transform: translateY(-2px);
+        }
+
+        .order-card:hover {
+            box-shadow: var(--shadow);
+            border-color: var(--secondary);
+        }
+
+        .cart-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .establishment-photo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+        }
+
+        }
+
+        /* ==================== APP BAR MODERNA ==================== */
+        .app-bar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: var(--shadow);
+        }
+
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+
+        .establishment-photo {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid var(--secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .establishment-photo:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+            }
+
+            .establishment-photo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .establishment-photo i {
+                font-size: 1.5rem;
+                color: var(--secondary);
+            }
+
+        .app-title h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #fff, #f97316);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .cart-btn {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+            .cart-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: scale(1.05);
+            }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, var(--secondary), #ea580c);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            animation: pulse 1.5s infinite;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="loading-bar" id="loadingBar"></div>
+
+    <div class="app-bar">
+        <div class="app-title" onclick="window.location.href='/Usuario/Cardapio'">
+            <div class="establishment-photo">
+                @if (estabelecimento != null && !string.IsNullOrEmpty(estabelecimento.Img_Estabelecimento))
+                {
+                    <img src="@estabelecimento.Img_Estabelecimento" alt="@estabelecimento.Nome_Estabelecimento">
+                }
+                else
+                {
+                    <i class="fas fa-store"></i>
+                }
+            </div>
+            <h1>@(estabelecimento?.Nome_Estabelecimento ?? "Alfa Prime")</h1>
+        </div>
+        <button class="cart-btn" onclick="toggleCart()">
+            <i class="fas fa-shopping-bag"></i>
+            <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+    </div>
+
+    <main class="main">
+        <div class="page-header">
+            <h2><i class="fas fa-clipboard-list"></i> Meus Pedidos</h2>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="tel"
+                       id="telefoneInput"
+                       class="search-input"
+                       placeholder="Digite seu Numero para buscar pedidos"
+                       value="@telefone">
+                <button class="btn-search" onclick="buscarPedidos()">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+            <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                <i class="fas fa-info-circle"></i> Use o mesmo número que você informou ao finalizar o pedido
+            </small>
+        </div>
+
+        <div id="ordersContainer">
+            <div class="empty-state">
+                <i class="fas fa-shopping-bag"></i>
+                <h3>Nenhum pedido encontrado</h3>
+                <p>Digite seu telefone acima para ver seus pedidos</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Pedido encontrado!</span>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        let connection = null;
+        let telefoneAtual = null;
+
+        function showLoading() {
+            document.getElementById('loadingBar').style.display = 'block';
+        }
+
+        function hideLoading() {
+            setTimeout(() => {
+                document.getElementById('loadingBar').style.display = 'none';
+            }, 500);
+        }
+
+        let toastTimeout;
+
+        function showToast(message, type = 'success') {
+
+            const toast = document.getElementById('toast');
+            const icon = toast.querySelector('i');
+            const msgSpan = document.getElementById('toastMessage');
+
+            clearTimeout(toastTimeout);
+
+            icon.className =
+                type === 'success'
+                    ? 'fas fa-check-circle'
+                    : type === 'error'
+                        ? 'fas fa-exclamation-circle'
+                        : 'fas fa-info-circle';
+
+            msgSpan.textContent = message;
+
+            toast.classList.add('show');
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==================== FUNÇÕES DOS PEDIDOS ====================
+        function getStatusClass(status) {
+            switch(status) {
+                case 'AGUARDANDO': return 'status-aguardando';
+                case 'EM_PREPARACAO': return 'status-preparo';
+                case 'PRONTO': return 'status-pronto';
+                case 'FINALIZADO': return 'status-finalizado';
+                default: return 'status-aguardando';
+            }
+        }
+
+        function getStatusTexto(status) {
+            switch(status) {
+                case 'AGUARDANDO': return '⏳ Aguardando aprovação';
+                case 'EM_PREPARACAO': return '🔥 Em preparo';
+                case 'PRONTO': return '✅ Pronto para retirar';
+                case 'FINALIZADO': return '✔️ Finalizado';
+                default: return '📝 Recebido';
+            }
+        }
+
+        function formatarData(data) {
+            const d = new Date(data);
+            return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderizarPedidos(pedidos) {
+            const container = document.getElementById('ordersContainer');
+
+            if (!pedidos || pedidos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>Nenhum pedido encontrado</h3>
+                        <p>Você ainda não fez nenhum pedido com este telefone</p>
+                        <button class="btn-search" onclick="window.location.href='/Usuario/Cardapio'" style="margin-top: 1rem;">
+                            <i class="fas fa-hamburger"></i> Fazer um pedido
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="orders-list">';
+
+            pedidos.forEach(pedido => {
+                const statusClass = getStatusClass(pedido.status);
+                const statusTexto = getStatusTexto(pedido.status);
+                const dataFormatada = formatarData(pedido.dataPedido);
+
+                html += `
+                    <div class="order-card" data-pedido-id="${pedido.id}">
+                        <div class="order-header">
+                            <div class="order-code">
+                                <h3>Pedido #${pedido.codigo}</h3>
+                                <span>${dataFormatada}</span>
+                            </div>
+                            <span class="status-badge ${statusClass}">${statusTexto}</span>
+                        </div>
+                        <div class="order-info">
+                            <div class="info-item"><i class="fas fa-credit-card"></i> ${pedido.formaPagamento || 'Dinheiro'}</div>
+                            <div class="info-item"><i class="fas fa-box"></i> ${pedido.totalItens} itens</div>
+                        </div>
+                        <div class="order-items">
+                            ${pedido.itens.map(item => `
+                                <div class="order-item">
+                                    <span>${item.quantidade}x ${item.nomeProduto}</span>
+                                    <span>R$ ${(item.quantidade * item.precoUnitario).toFixed(2)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="order-total">
+                            <span>Total</span>
+                            <span class="total-value">R$ ${pedido.valorTotal.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        async function buscarPedidos() {
+            let telefone = document.getElementById('telefoneInput').value.trim();
+
+            if (!telefone) {
+                showToast('Digite seu número', 'error');
+                return;
+            }
+
+            let telefoneNormalizado = telefone.replace(/\D/g, '');
+
+            if (telefoneNormalizado.length < 10) {
+                showToast('Digite um número de telefone válido', 'error');
+                return;
+            }
+
+            showLoading();
+            telefoneAtual = telefoneNormalizado;
+
+            try {
+                const response = await fetch(`/Usuario/BuscarPedidos?telefone=${encodeURIComponent(telefoneNormalizado)}`);
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    renderizarPedidos(data.pedidos);
+                    if (data.pedidos.length > 0) {
+                        showToast(`${data.pedidos.length} pedido(s) encontrado(s)`, 'success');
+                        localStorage.setItem('ultimoTelefone', telefoneNormalizado);
+                        conectarSignalR(telefoneNormalizado);
+                    } else {
+                        showToast('Nenhum pedido encontrado para este telefone', 'info');
+                    }
+                } else {
+                    showToast(data.message || 'Erro ao buscar pedidos', 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showToast('Erro ao conectar com o servidor', 'error');
+            }
+        }
+
+        function conectarSignalR(telefone) {
+            if (connection && connection.state === 'Connected') {
+                connection.stop();
+            }
+
+            // 🔥 GARANTIR QUE O TELEFONE ESTÁ NORMALIZADO (APENAS NÚMEROS)
+            const telefoneNormalizado = telefone.replace(/\D/g, '');
+    
+            // 🔥 SE TIVER 10 DÍGITOS, ADICIONAR 9 NA FRENTE (SE FOR CELULAR)
+            let telefoneGrupo = telefoneNormalizado;
+            if (telefoneNormalizado.length === 10) {
+                telefoneGrupo = "9" + telefoneNormalizado;
+            }
+    
+            console.log(`📞 Conectando ao grupo: cliente_${telefoneGrupo}`);
+            console.log(`📞 Telefone original: ${telefone}`);
+            console.log(`📞 Telefone normalizado: ${telefoneNormalizado}`);
+            console.log(`📞 Telefone grupo: ${telefoneGrupo}`);
+
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/pedidoHub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("StatusAtualizado", function(data) {
+                console.log("📢 Status atualizado recebido:", data);
+        
+                const orderCard = document.querySelector(`.order-card[data-pedido-id="${data.id}"]`);
+                if (orderCard) {
+                    const statusBadge = orderCard.querySelector('.status-badge');
+                    const statusClass = getStatusClass(data.status);
+                    const statusTexto = getStatusTexto(data.status);
+
+                    statusBadge.className = `status-badge ${statusClass}`;
+                    statusBadge.textContent = statusTexto;
+
+                    showToast(`Pedido #${data.codigo || data.id} ${data.mensagem || statusTexto}`, 'info');
+                } else {
+                    buscarPedidos();
+                }
+            });
+
+            connection.start()
+                .then(() => {
+                    console.log(`✅ Conectado ao SignalR!`);
+                    connection.invoke("EntrarGrupoCliente", telefoneGrupo)
+                        .then(() => console.log(`✅ Entrou no grupo cliente_${telefoneGrupo}`))
+                        .catch(err => console.error("❌ Erro ao entrar no grupo:", err));
+                })
+                .catch(err => console.error("❌ Erro ao conectar SignalR:", err));
+        }
+
+
+
+        // ==================== INICIALIZAÇÃO ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("🚀 Inicializando página...");
+
+
+                // Configurar eventos
+            const telefone = '@telefone';
+            if (telefone && telefone !== '') {
+                document.getElementById('telefoneInput').value = telefone;
+                buscarPedidos();
+            }
+
+            // Permitir buscar com Enter
+            const telefoneInput = document.getElementById('telefoneInput');
+            if (telefoneInput) {
+                telefoneInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') buscarPedidos();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

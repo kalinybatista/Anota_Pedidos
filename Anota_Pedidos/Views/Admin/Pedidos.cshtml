@@ -1,0 +1,930 @@
+﻿@model List<Anota_Pedidos.Models.PedidoModel>
+
+@{
+    ViewData["Title"] = "Pedidos";
+}
+
+@section Styles {
+    <style>
+        /* Estilos específicos da página de Pedidos */
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .churrasqueira-section {
+            background: linear-gradient(135deg, #1e1b2e, #2a2438);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .churrasqueira-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+            .churrasqueira-header i {
+                font-size: 2rem;
+                color: var(--secondary);
+            }
+
+            .churrasqueira-header h2 {
+                font-size: 1.5rem;
+                font-weight: 600;
+            }
+
+            .churrasqueira-header span {
+                background: var(--secondary);
+                padding: 0.2rem 0.8rem;
+                border-radius: 100px;
+                font-size: 0.8rem;
+                margin-left: auto;
+            }
+
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .produto-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+            .produto-card:hover {
+                background: rgba(255,255,255,0.2);
+                transform: translateY(-3px);
+            }
+
+        .produto-nome {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .produto-qtd {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .produto-unidade {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
+        .total-espetinhos {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+
+            .total-espetinhos span:last-child {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--secondary);
+            }
+
+        .orders-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+            .section-header h2 {
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+        .badge {
+            background: var(--secondary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-light);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .order-card {
+            background: var(--bg-light);
+            border-radius: var(--radius);
+            padding: 1rem;
+            transition: var(--transition);
+            border: 1px solid var(--border-light);
+        }
+
+            .order-card:hover {
+                box-shadow: var(--shadow);
+                border-color: var(--secondary);
+            }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px dashed var(--border-light);
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .customer-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--secondary), #f97316);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .customer-details h4 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .customer-details span {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .order-right-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .order-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #fed7aa;
+            color: #9a3412;
+            white-space: nowrap;
+        }
+
+        .fifo-badge {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            min-width: 45px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(249,115,22,0.3);
+        }
+
+        .order-items {
+            margin: 0.8rem 0;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+            .order-item:last-child {
+                border-bottom: none;
+            }
+
+        .order-item-name {
+            font-weight: 500;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.8rem 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .total-value {
+            color: var(--success);
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+            .btn-success:hover {
+                background: #16a34a;
+                transform: translateY(-2px);
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                margin-bottom: 0.5rem;
+            }
+
+        /* Modal de Confirmação */
+        .admin-confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 10001;
+            justify-content: center;
+            align-items: center;
+        }
+
+            .admin-confirm-modal.show {
+                display: flex;
+            }
+
+        .admin-confirm-content {
+            background: linear-gradient(135deg, #fff, #fff7ed);
+            border-radius: 32px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: adminSlideUp 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        @@keyframes adminSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .admin-confirm-header {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .admin-confirm-header i {
+                font-size: 4rem;
+                color: white;
+                margin-bottom: 1rem;
+                animation: adminBounce 0.5s ease;
+            }
+
+        @@keyframes adminBounce {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .admin-confirm-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-confirm-body {
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .admin-confirm-body .pedido-info {
+                background: #f1f5f9;
+                border-radius: 20px;
+                padding: 1.5rem;
+                margin: 1rem 0;
+            }
+
+            .admin-confirm-body .pedido-number {
+                font-size: 2rem;
+                font-weight: 800;
+                background: linear-gradient(135deg, #f97316, #ea580c);
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin: 0.5rem 0;
+            }
+
+            .admin-confirm-body .cliente-nome {
+                font-size: 1.2rem;
+                color: #0f172a;
+                font-weight: 600;
+                margin-top: 0.5rem;
+            }
+
+            .admin-confirm-body .cliente-telefone {
+                color: #64748b;
+                font-size: 0.9rem;
+                margin-top: 0.25rem;
+            }
+
+        .admin-confirm-footer {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .admin-confirm-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .admin-confirm-btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .admin-confirm-btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .confetti-admin {
+            position: fixed;
+            width: 10px;
+            height: 20px;
+            top: -20px;
+            animation: fall 3s linear forwards;
+            z-index: 10002;
+            pointer-events: none;
+        }
+
+        @@keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .churrasqueira-section.hidden {
+            display: none;
+        }
+
+        .tipo-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .tipo-consumir {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tipo-entregar {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        @@media (max-width: 768px) {
+            .order-header {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .customer-info {
+                flex: 1;
+                min-width: 200px;
+            }
+
+            .order-right-info {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .order-actions {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .produtos-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+}
+
+<div class="dashboard">
+    @{
+        var produtosChurrasqueira = new Dictionary<string, int>();
+
+        foreach (var pedido in Model.Where(p => p.Status_Pedido == StatusPedido.EM_PREPARACAO))
+        {
+            if (pedido.Itens != null)
+            {
+                foreach (var item in pedido.Itens)
+                {
+                    if (item.Produto != null && item.Produto.Categoria != null &&
+                    item.Produto.Categoria.Nome_Categoria == "Espetinhos")
+                    {
+                        var nomeProduto = item.Produto.Nome_Produto;
+                        if (produtosChurrasqueira.ContainsKey(nomeProduto))
+                            produtosChurrasqueira[nomeProduto] += item.Quantidade;
+                        else
+                            produtosChurrasqueira[nomeProduto] = item.Quantidade;
+                    }
+                }
+            }
+        }
+
+        var produtosChurrasqueiraFiltrados = produtosChurrasqueira
+        .Where(p => p.Key != null)
+        .ToDictionary(p => p.Key, p => p.Value);
+
+        var temEspetinhos = produtosChurrasqueiraFiltrados.Any();
+    }
+
+    <!-- Seção Churrasqueira -->
+    <div class="churrasqueira-section @(temEspetinhos ? "" : "hidden")" id="churrasqueiraSection">
+        <div class="churrasqueira-header">
+            <i class="fas fa-fire"></i>
+            <h2>Churrasqueira</h2>
+            <span>Em produção</span>
+        </div>
+
+        <div class="produtos-grid">
+            @if (temEspetinhos)
+            {
+                @foreach (var produto in produtosChurrasqueiraFiltrados.OrderBy(p => p.Key))
+                {
+                    <div class="produto-card">
+                        <div class="produto-nome">@produto.Key</div>
+                        <div class="produto-qtd">@produto.Value</div>
+                        <div class="produto-unidade">unidades</div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state" style="color: rgba(255,255,255,0.6); grid-column: 1/-1;">
+                    <i class="fas fa-fire-extinguisher"></i>
+                    <p>Nenhum espetinho na churrasqueira</p>
+                </div>
+            }
+        </div>
+
+        <div class="total-espetinhos">
+            <span>Total de espetinhos</span>
+            <span>@produtosChurrasqueiraFiltrados.Sum(p => p.Value)</span>
+        </div>
+    </div>
+
+    <!-- Seção de Pedidos -->
+    <div class="orders-section">
+        <div class="section-header">
+            <h2><i class="fas fa-fire"></i> Fila de Produção</h2>
+            <span class="badge">FIFO - Primeiro que chega</span>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalPreparo">@Model.Count(p => p.Status_Pedido == StatusPedido.EM_PREPARACAO)</div>
+                <div class="stat-label">Pedidos em preparo</div>
+            </div>
+        </div>
+
+        <div class="orders-list" id="ordersList">
+            @if (Model.Any(p => p.Status_Pedido == StatusPedido.EM_PREPARACAO))
+            {
+                var pedidosEmPreparo = Model.Where(p => p.Status_Pedido == StatusPedido.EM_PREPARACAO)
+                .OrderBy(p => p.Data_Pedido).ToList();
+
+                @foreach (var pedido in pedidosEmPreparo)
+                {
+                    <div class="order-card" data-pedido-id="@pedido.Id_Pedido">
+                        <div class="order-header">
+                            <div class="customer-info">
+                                
+                                <div class="customer-details">
+                                    <h4>@(pedido.Usuario?.Nome ?? "Cliente")</h4>
+                                    <span>Pedido #@pedido.CodigoPedido • @pedido.Data_Pedido.ToString("HH:mm")</span>
+                                    <br>
+                                    @if (pedido.TipoPedido == "ENTREGAR")
+                                    {
+                                        <small class="tipo-badge tipo-entregar">
+                                            <i class="fas fa-shopping-bag"></i> Para levar
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <small class="tipo-badge tipo-consumir">
+                                            <i class="fas fa-utensils"></i> Comer no local
+                                        </small>
+                                    }
+                                    <br>
+                                    <small><i class="fab fa-whatsapp"></i> @(pedido.Usuario?.Telefone ?? "Não informado")</small>
+                                </div>
+                            </div>
+                            <div class="order-right-info">
+                                <span class="order-status">🔥 Em preparo</span>
+                                <span class="fifo-badge">#@pedido.CodigoPedido</span>
+                                <!-- <span class="fifo-badge">#(pedidosEmPreparo.IndexOf(pedido) + 1)</span> -->
+                            </div>
+                        </div>
+
+                        @if (pedido.Itens != null && pedido.Itens.Any())
+                        {
+                            <div class="order-items">
+                                @foreach (var item in pedido.Itens)
+                                {
+                                    <div class="order-item">
+                                        <span class="order-item-name">@item.Quantidade x @(item.Produto?.Nome_Produto ?? "Produto")</span>
+                                        <span class="order-item-price">R$ @((item.Valor_Unitario * item.Quantidade).ToString("F2"))</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <div class="order-total">
+                            <span>Total</span>
+                            <span class="total-value">R$ @(pedido.Valor_Total?.ToString("F2") ?? "0,00")</span>
+                        </div>
+
+                        <div class="order-actions">
+                            <button class="btn btn-success" onclick="prepararPronto(@pedido.Id_Pedido, @pedido.CodigoPedido, '@(pedido.Usuario?.Nome?.Replace("'", "\\'") ?? "Cliente")', '@(pedido.Usuario?.Telefone ?? "")')">
+                                <i class="fas fa-check-circle"></i> Marcar Pronto
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Nenhum pedido na fila</h3>
+                    <p>Os pedidos aparecerão aqui automaticamente</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação para Admin -->
+<div class="admin-confirm-modal" id="adminConfirmModal">
+    <div class="admin-confirm-content">
+        <div class="admin-confirm-header">
+            <i class="fas fa-check-circle"></i>
+            <h2>Pronto para retirar!</h2>
+            <p>Confirme o status do pedido</p>
+        </div>
+        <div class="admin-confirm-body">
+            <div class="pedido-info">
+                <i class="fas fa-receipt" style="color: #f97316; font-size: 2rem;"></i>
+                <div class="pedido-number" id="adminPedidoNumero">#0</div>
+                <div class="cliente-nome" id="adminClienteNome">Carregando...</div>
+                <div class="cliente-telefone" id="adminClienteTelefone"></div>
+            </div>
+            <p style="color: #64748b; margin-top: 1rem;">
+                <i class="fas fa-bell"></i> O cliente verá na aba Meus Pedidos!
+            </p>
+        </div>
+        <div class="admin-confirm-footer">
+            <button class="admin-confirm-btn admin-confirm-btn-secondary" onclick="fecharAdminConfirmModal(false)">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="admin-confirm-btn admin-confirm-btn-primary" onclick="confirmarPronto()">
+                <i class="fas fa-check-circle"></i> Confirmar Pronto
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        let pedidoConnection = null;
+        let pendingPedidoId = null;
+        let pendingPedidoCodigo = null;
+        let pendingClienteNome = null;
+        let pendingClienteTelefone = null;
+
+        function conectarSignalRPedidos() {
+            if (typeof signalR === 'undefined') {
+                setTimeout(conectarSignalRPedidos, 1000);
+                return;
+            }
+
+            pedidoConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/pedidoHub")
+                .withAutomaticReconnect([0, 2000, 5000, 10000])
+                .build();
+
+            pedidoConnection.on("NovoPedido", function (pedido) {
+                showToast(`🆕 Novo pedido #${pedido.codigo || pedido.id} - ${pedido.cliente}`, 'success');
+                setTimeout(() => carregarPedidos(), 500);
+            });
+
+            pedidoConnection.on("PedidosAtualizados", function () { carregarPedidos(); });
+            pedidoConnection.on("PedidoPronto", function (data) {
+                showToast(`✅ Pedido #${data.codigo || data.id} está pronto!`, 'success');
+                carregarPedidos();
+            });
+            pedidoConnection.on("StatusAtualizado", function (data) { carregarPedidos(); });
+
+            pedidoConnection.start()
+                .then(() => pedidoConnection.invoke("EntrarGrupoAdmin"))
+                .catch(err => console.error("Erro SignalR:", err));
+        }
+
+        async function carregarPedidos() {
+            showLoading();
+            try {
+                const response = await fetch('/Admin/ObterPedidosEmPreparo');
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    atualizarListaPedidos(data.pedidos);
+                    atualizarChurrasqueira(data.produtosChurrasqueira);
+                    document.getElementById('totalPreparo').textContent = data.totalPedidos;
+                }
+            } catch (error) {
+                hideLoading();
+                console.error('Erro:', error);
+            }
+        }
+
+        function atualizarChurrasqueira(produtos) {
+            const section = document.getElementById('churrasqueiraSection');
+            const grid = document.querySelector('.churrasqueira-section .produtos-grid');
+            const totalSpan = document.querySelector('.churrasqueira-section .total-espetinhos span:last-child');
+
+            const temProdutos = produtos && Object.keys(produtos).length > 0;
+
+            if (section) section.classList.toggle('hidden', !temProdutos);
+
+            if (grid) {
+                if (temProdutos) {
+                    let html = '';
+                    for (const [nome, qtd] of Object.entries(produtos)) {
+                        html += `<div class="produto-card">
+                            <div class="produto-nome">${escapeHtml(nome)}</div>
+                            <div class="produto-qtd">${qtd}</div>
+                            <div class="produto-unidade">unidades</div>
+                        </div>`;
+                    }
+                    grid.innerHTML = html;
+                } else {
+                    grid.innerHTML = '<div class="empty-state" style="color: rgba(255,255,255,0.6); grid-column: 1/-1;"><i class="fas fa-fire-extinguisher"></i><p>Nenhum espetinho na churrasqueira</p></div>';
+                }
+            }
+
+            if (totalSpan && temProdutos) {
+                totalSpan.textContent = Object.values(produtos).reduce((a, b) => a + b, 0);
+            }
+        }
+
+        function atualizarListaPedidos(pedidos) {
+            const ordersList = document.getElementById('ordersList');
+            if (!ordersList) return;
+
+            if (!pedidos || pedidos.length === 0) {
+                ordersList.innerHTML = `<div class="empty-state"><i class="fas fa-check-circle"></i><h3>Nenhum pedido na fila</h3><p>Os pedidos aparecerão aqui automaticamente</p></div>`;
+                return;
+            }
+
+            let html = '';
+            pedidos.forEach((pedido, index) => {
+                const tipoClass = pedido.tipoPedido === 'ENTREGAR' ? 'tipo-entregar' : 'tipo-consumir';
+                const tipoIcon = pedido.tipoPedido === 'ENTREGAR' ? 'fa-shopping-bag' : 'fa-utensils';
+                const tipoText = pedido.tipoPedido === 'ENTREGAR' ? 'Para levar' : 'Comer no local';
+
+                html += `<div class="order-card" data-pedido-id="${pedido.id}">
+                    <div class="order-header">
+                        <div class="customer-info">
+
+                            <div class="customer-details">
+                                <h4>${escapeHtml(pedido.clienteNome) || "Cliente"}</h4>
+                                <span>Pedido #${pedido.codigoPedido} • ${pedido.hora}</span><br>
+                                <small class="tipo-badge ${tipoClass}"><i class="fas ${tipoIcon}"></i> ${tipoText}</small><br>
+                                <small><i class="fab fa-whatsapp"></i> ${escapeHtml(pedido.telefone) || "Não informado"}</small>
+                            </div>
+                        </div>
+                        <div class="order-right-info">
+                            <span class="order-status">🔥 Em preparo</span>
+                            <span class="fifo-badge">#${pedido.codigoPedido}</span>
+                            <!-- <span class="fifo-badge">{pedido.codigoPedido}</span> -->
+                        </div>
+                    </div>
+                    <div class="order-items">
+                        ${pedido.itens.map(item => `<div class="order-item"><span class="order-item-name">${item.quantidade} x ${escapeHtml(item.nomeProduto)}</span><span class="order-item-price">R$ ${item.total.toFixed(2)}</span></div>`).join('')}
+                    </div>
+                    <div class="order-total"><span>Total</span><span class="total-value">R$ ${pedido.valorTotal.toFixed(2)}</span></div>
+                    <div class="order-actions">
+                        <button class="btn btn-success" onclick="prepararPronto(${pedido.id}, ${pedido.codigoPedido}, '${escapeHtml(pedido.clienteNome).replace(/'/g, "\\'")}', '${escapeHtml(pedido.telefone) || ''}')">
+                            <i class="fas fa-check-circle"></i> Marcar Pronto
+                        </button>
+                    </div>
+                </div>`;
+            });
+            ordersList.innerHTML = html;
+        }
+
+        function prepararPronto(id, codigo, nome, telefone) {
+            pendingPedidoId = id;
+            pendingPedidoCodigo = codigo;
+            pendingClienteNome = nome;
+            pendingClienteTelefone = telefone;
+
+            document.getElementById('adminPedidoNumero').textContent = `#${codigo}`;
+            document.getElementById('adminClienteNome').textContent = nome;
+            document.getElementById('adminClienteTelefone').textContent = telefone || 'Não informado';
+            document.getElementById('adminConfirmModal').classList.add('show');
+            criarConfetesAdmin();
+        }
+
+        function fecharAdminConfirmModal() {
+            document.getElementById('adminConfirmModal').classList.remove('show');
+        }
+
+        async function confirmarPronto() {
+            if (pendingPedidoId) {
+                await marcarPronto();
+                fecharAdminConfirmModal();
+            }
+        }
+
+        async function marcarPronto() {
+            showLoading();
+            try {
+                const response = await fetch('/Admin/AtualizarStatusPedido', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: pendingPedidoId, status: 'PRONTO' })
+                });
+                const data = await response.json();
+                hideLoading();
+                showToast(data.message, data.success ? 'success' : 'error');
+                if (data.success) carregarPedidos();
+            } catch (error) {
+                hideLoading();
+                showToast('Erro ao marcar pronto', 'error');
+            }
+        }
+
+        function criarConfetesAdmin() {
+            const colors = ['#10b981', '#059669', '#34d399', '#6ee7b7', '#f97316'];
+            for (let i = 0; i < 80; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti-admin';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.width = (Math.random() * 8 + 4) + 'px';
+                    confetti.style.height = (Math.random() * 12 + 8) + 'px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                document.getElementById('toastMessage').textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 4000);
+            }
+        }
+
+        function showLoading() { const el = document.getElementById('loadingBar'); if (el) el.style.display = 'block'; }
+        function hideLoading() { const el = document.getElementById('loadingBar'); if (el) el.style.display = 'none'; }
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            conectarSignalRPedidos();
+            carregarPedidos();
+            setInterval(carregarPedidos, 90000);
+        });
+    </script>
+}

@@ -1,0 +1,645 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Redefinir Senha";
+    var token = ViewBag.Token as string;
+    var email = ViewBag.Email as string;
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alfa Prime • Redefinir Senha</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --secondary: #f97316;
+            --secondary-light: #fb923c;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-dark: #0b1120;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-light: #e2e8f0;
+            --border-focus: #f97316;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow: 0 10px 40px -15px rgba(0,0,0,0.2);
+            --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --shadow-xl: 0 35px 60px -15px rgba(0,0,0,0.3);
+            --radius-sm: 12px;
+            --radius: 20px;
+            --radius-lg: 32px;
+            --radius-xl: 40px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--primary), #1a2a4a);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .reset-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reset-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .reset-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: linear-gradient(90deg, var(--secondary), #fb923c, var(--secondary));
+            }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--secondary), #ea580c);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 20px 30px -10px rgba(249, 115, 22, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+
+            .logo-text span {
+                color: var(--secondary);
+            }
+
+        .reset-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+            .reset-title h2 {
+                font-size: 1.8rem;
+                color: var(--primary);
+                margin-bottom: 0.5rem;
+            }
+
+            .reset-title p {
+                color: var(--text-muted);
+                font-size: 0.95rem;
+            }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+            .form-label i {
+                color: var(--secondary);
+            }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1.2rem 1.2rem 1.2rem 3rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--bg-light);
+        }
+
+            .form-input:focus {
+                outline: none;
+                border-color: var(--secondary);
+                box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+                background: white;
+            }
+
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+            .password-toggle:hover {
+                color: var(--secondary);
+            }
+
+        .password-requirements {
+            background: var(--bg-light);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid var(--border-light);
+        }
+
+        .requirements-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .requirements-list {
+            list-style: none;
+        }
+
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+            color: var(--text-muted);
+        }
+
+            .requirement-item.valid {
+                color: var(--success);
+            }
+
+            .requirement-item i {
+                width: 16px;
+                font-size: 0.8rem;
+            }
+
+        .btn-reset {
+            width: 100%;
+            background: linear-gradient(135deg, var(--secondary), #ea580c);
+            color: white;
+            border: none;
+            padding: 1.2rem;
+            border-radius: var(--radius);
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+            .btn-reset:hover:not(:disabled) {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 30px -5px rgba(249, 115, 22, 0.4);
+            }
+
+            .btn-reset:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .alert {
+            padding: 1rem 1.2rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border-left: 4px solid var(--success);
+            color: #166534;
+        }
+
+        .reset-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border-light);
+        }
+
+            .reset-footer p {
+                color: var(--text-muted);
+                font-size: 0.9rem;
+            }
+
+            .reset-footer a {
+                color: var(--secondary);
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+                .reset-footer a:hover {
+                    text-decoration: underline;
+                }
+
+        .loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            animation: loading 1.5s ease-in-out infinite;
+            display: none;
+            z-index: 2000;
+        }
+
+        @@keyframes loading {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .reset-container {
+                padding: 1rem;
+            }
+
+            .reset-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .logo-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+
+            .logo-text {
+                font-size: 1.6rem;
+            }
+
+            .reset-title h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .reset-card {
+                padding: 1.5rem 1.2rem;
+            }
+
+            .logo-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .logo-text {
+                font-size: 1.4rem;
+            }
+
+            .reset-title h2 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-bar" id="loadingBar"></div>
+
+    <div class="reset-container">
+        <div class="reset-card">
+            @* <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="logo-text">
+                    Alfa<span>Prime</span>
+                </div>
+            </div> *@
+
+            <div class="reset-title">
+                <h2>Redefinir senha</h2>
+                <p>Crie uma nova senha para sua conta</p>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <form id="resetForm">
+                <input type="hidden" id="token" value="@token" />
+                <input type="hidden" id="email" value="@email" />
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-lock"></i>
+                        Nova senha
+                    </label>
+                    <div class="password-field">
+                        <i class="fas fa-key input-icon"></i>
+                        <input type="password"
+                               id="novaSenha"
+                               class="form-input"
+                               placeholder="Mínimo 6 caracteres"
+                               required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('novaSenha', 'toggleIcon1')">
+                            <i class="fas fa-eye" id="toggleIcon1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-lock"></i>
+                        Confirmar senha
+                    </label>
+                    <div class="password-field">
+                        <i class="fas fa-check-circle input-icon"></i>
+                        <input type="password"
+                               id="confirmarSenha"
+                               class="form-input"
+                               placeholder="Confirme sua nova senha"
+                               required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirmarSenha', 'toggleIcon2')">
+                            <i class="fas fa-eye" id="toggleIcon2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="password-requirements">
+                    <div class="requirements-title">
+                        <i class="fas fa-shield-alt"></i>
+                        Requisitos da senha:
+                    </div>
+                    <div class="requirements-list">
+                        <div class="requirement-item" id="reqLength">
+                            <i class="fas fa-circle"></i>
+                            <span>Mínimo 6 caracteres</span>
+                        </div>
+                        <div class="requirement-item" id="reqMatch">
+                            <i class="fas fa-circle"></i>
+                            <span>Senhas coincidem</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-reset" id="resetButton">
+                    <span>Redefinir senha</span>
+                    <i class="fas fa-check"></i>
+                </button>
+            </form>
+
+            <div class="reset-footer">
+                <p><a href="/Login/Login">Voltar para o login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const novaSenha = document.getElementById('novaSenha');
+        const confirmarSenha = document.getElementById('confirmarSenha');
+        const resetButton = document.getElementById('resetButton');
+        const alertContainer = document.getElementById('alertContainer');
+        const loadingBar = document.getElementById('loadingBar');
+        const token = document.getElementById('token').value;
+        const email = document.getElementById('email').value;
+        const reqLength = document.getElementById('reqLength');
+        const reqMatch = document.getElementById('reqMatch');
+
+        function showLoading() {
+            loadingBar.style.display = 'block';
+        }
+
+        function hideLoading() {
+            setTimeout(() => {
+                loadingBar.style.display = 'none';
+            }, 300);
+        }
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i><span>${message}</span>`;
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function validatePassword() {
+            const senha = novaSenha.value;
+            const confirmar = confirmarSenha.value;
+
+            const hasLength = senha.length >= 6;
+            const hasMatch = senha === confirmar && senha.length > 0;
+
+            reqLength.style.color = hasLength ? '#10b981' : 'var(--text-muted)';
+            reqLength.querySelector('i').className = hasLength ? 'fas fa-check-circle' : 'fas fa-circle';
+
+            reqMatch.style.color = hasMatch ? '#10b981' : 'var(--text-muted)';
+            reqMatch.querySelector('i').className = hasMatch ? 'fas fa-check-circle' : 'fas fa-circle';
+
+            resetButton.disabled = !(hasLength && hasMatch);
+        }
+
+        novaSenha.addEventListener('input', validatePassword);
+        confirmarSenha.addEventListener('input', validatePassword);
+
+        // Na parte do submit, certifique-se de que está usando o email correto
+        document.getElementById('resetForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const senha = novaSenha.value;
+            const confirmar = confirmarSenha.value;
+            const emailValue = email;  // email já está definido no topo do script
+            const tokenValue = token;  // token já está definido
+
+            if (!senha || senha.length < 6) {
+                showAlert('error', 'A senha deve ter no mínimo 6 caracteres!');
+                return;
+            }
+
+            if (senha !== confirmar) {
+                showAlert('error', 'As senhas não coincidem!');
+                return;
+            }
+
+            if (!tokenValue) {
+                showAlert('error', 'Token de recuperação inválido!');
+                return;
+            }
+
+            if (!emailValue) {
+                showAlert('error', 'Email inválido!');
+                return;
+            }
+
+            resetButton.disabled = true;
+            resetButton.innerHTML = '<div class="spinner"></div><span>Redefinindo...</span>';
+            showLoading();
+
+            try {
+                const response = await fetch('/Login/RedefinirSenha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: emailValue,
+                        token: tokenValue,
+                        novaSenha: senha
+                    })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    showAlert('success', data.message);
+                    setTimeout(() => {
+                        window.location.href = '/Login/Login';
+                    }, 2500);
+                } else {
+                    showAlert('error', data.message);
+                    resetButton.disabled = false;
+                    resetButton.innerHTML = '<span>Redefinir senha</span><i class="fas fa-check"></i>';
+                }
+            } catch (error) {
+                hideLoading();
+                console.error('Erro:', error);
+                showAlert('error', 'Erro ao conectar com o servidor');
+                resetButton.disabled = false;
+                resetButton.innerHTML = '<span>Redefinir senha</span><i class="fas fa-check"></i>';
+            }
+        });
+    </script>
+</body>
+</html>

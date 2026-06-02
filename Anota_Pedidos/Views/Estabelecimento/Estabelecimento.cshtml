@@ -1,0 +1,531 @@
+﻿@model Anota_Pedidos.Models.EstabelecimentoModel
+
+@{
+    ViewData["Title"] = "Configurar Estabelecimento";
+    bool isNovo = ViewBag.Novo ?? false;
+}
+
+@section Styles {
+    <style>
+        /* Estilos específicos da página de Configuração do Estabelecimento */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0 0 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--border-light);
+        }
+
+            .section-header i {
+                font-size: 2rem;
+                color: var(--secondary);
+                background: linear-gradient(135deg, #fff7ed, #ffedd5);
+                padding: 1rem;
+                border-radius: 20px;
+            }
+
+            .section-header h2 {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--primary);
+            }
+
+        .config-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+            margin-bottom: 2rem;
+        }
+
+        .config-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--secondary), #ea580c);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.3);
+        }
+
+        .config-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+            .config-title h3 {
+                font-size: 1.5rem;
+                color: var(--primary);
+                margin-bottom: 0.5rem;
+            }
+
+            .config-title p {
+                color: var(--text-muted);
+            }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+            .form-label i {
+                color: var(--secondary);
+                font-size: 1.2rem;
+            }
+
+        .form-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius);
+            font-size: 1.1rem;
+            transition: var(--transition);
+            background: var(--bg-light);
+        }
+
+            .form-input:focus {
+                outline: none;
+                border-color: var(--secondary);
+                box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+                background: white;
+            }
+
+        .photo-upload-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: var(--radius);
+            border: 2px dashed var(--border-light);
+        }
+
+        .photo-upload-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: var(--secondary);
+            color: white;
+            border-radius: 100px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+            .photo-upload-label:hover {
+                background: #ea580c;
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px -5px var(--secondary);
+            }
+
+        .file-input {
+            display: none;
+        }
+
+        .photo-hint {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .btn-save {
+            width: 100%;
+            background: linear-gradient(135deg, var(--secondary), #ea580c);
+            color: white;
+            border: none;
+            padding: 1.2rem;
+            border-radius: var(--radius);
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.3);
+        }
+
+            .btn-save:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 30px -5px rgba(249, 115, 22, 0.4);
+            }
+
+        .info-box {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            margin: 2rem 0 1rem;
+            border-left: 4px solid var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+            .info-box i {
+                font-size: 1.5rem;
+                color: var(--accent);
+            }
+
+            .info-box p {
+                color: var(--text-secondary);
+                font-size: 0.95rem;
+            }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-info {
+            background: #cff4fc;
+            color: #055160;
+            border-left: 4px solid #0dcaf0;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert i {
+            font-size: 1.2rem;
+        }
+
+        .animate {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .section-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .config-card {
+                padding: 1.5rem;
+            }
+
+            .config-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .form-input {
+                padding: 1rem 1.2rem;
+                font-size: 1rem;
+            }
+
+            .btn-save {
+                padding: 1rem;
+                font-size: 1.1rem;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .section-header i {
+                font-size: 1.5rem;
+                padding: 0.8rem;
+            }
+
+            .section-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .config-card {
+                padding: 1.2rem;
+            }
+        }
+    </style>
+}
+
+<div class="section-header animate">
+    <i class="fas fa-store"></i>
+    <h2>Configurações do Estabelecimento</h2>
+</div>
+
+<!-- Alerta de boas-vindas para primeiro acesso -->
+<div id="welcomeAlert" class="alert alert-info animate" style="display: @(isNovo ? "flex" : "none");">
+    <i class="fas fa-info-circle"></i>
+    <span>🎉 Bem-vindo! Preencha os dados do seu estabelecimento para começar a usar o sistema.</span>
+</div>
+
+<div class="config-card animate">
+    <div class="config-icon"><i class="fas fa-store-alt"></i></div>
+    <div class="config-title">
+        <h3 id="formTitle">@(isNovo ? "Criar Estabelecimento" : "Editar Estabelecimento")</h3>
+        <p>@(isNovo ? "Cadastre seu estabelecimento para começar" : "Altere as informações do seu negócio")</p>
+    </div>
+
+    <div class="photo-upload-section">
+        <div id="currentPhotoPreview" style="width: 100px; height: 100px; margin: 0 auto 1rem; border-radius: 20px; overflow: hidden; border: 3px solid var(--secondary);">
+            <img id="currentPhotoImg" src="@(string.IsNullOrEmpty(Model?.Img_Estabelecimento) ? "/images/default-store.png" : Model.Img_Estabelecimento)" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        <label for="fileInput" class="photo-upload-label"><i class="fas fa-camera"></i> Escolher foto do estabelecimento</label>
+        <input type="file" id="fileInput" class="file-input" accept="image/*" onchange="previewImage(this)">
+        <div class="photo-hint"><i class="fas fa-info-circle"></i> A foto aparecerá no topo do aplicativo</div>
+    </div>
+
+    <form id="configForm" onsubmit="salvarConfig(event)">
+        <div class="form-group">
+            <label class="form-label"><i class="fas fa-store"></i> Nome do estabelecimento</label>
+            <input type="text" class="form-input" id="nomeEstabelecimento" placeholder="Ex: Alfa Prime" value="@Model?.Nome_Estabelecimento" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label"><i class="fas fa-comment"></i> Mensagem de boas-vindas</label>
+            <input type="text" class="form-input" id="mensagemHero"
+                   placeholder="Ex: Espetinhos e jantinhas feitos com amor ❤️"
+                   value="@Model?.MensagemHero">
+            <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                <i class="fas fa-info-circle"></i> Esta mensagem aparece no topo do CARDÁPIO.
+            </small>
+        </div>
+
+        <button type="submit" class="btn-save" id="saveButton">
+            <i class="fas @(isNovo ? "fa-plus-circle" : "fa-save")"></i>
+            @(isNovo ? "Criar estabelecimento" : "Salvar alterações")
+        </button>
+    </form>
+</div>
+
+<!-- Preview do estabelecimento -->
+<div class="config-card animate" style="animation-delay: 0.2s; background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
+    <div style="display: flex; align-items: center; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+        <img id="previewThumb" src="@(string.IsNullOrEmpty(Model?.Img_Estabelecimento) ? "/images/default-store.png" : Model.Img_Estabelecimento)" style="width: 60px; height: 60px; border-radius: 16px; object-fit: cover; border: 2px solid var(--secondary);">
+        <div>
+            <h4 style="font-size: 1.3rem; color: var(--primary);" id="previewName">@(string.IsNullOrEmpty(Model?.Nome_Estabelecimento) ? "Alfa Prime" : Model.Nome_Estabelecimento)</h4>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        // Elementos DOM
+        const previewThumb = document.getElementById('previewThumb');
+        const currentPhotoImg = document.getElementById('currentPhotoImg');
+        const nomeInput = document.getElementById('nomeEstabelecimento');
+        const previewName = document.getElementById('previewName');
+        const welcomeAlert = document.getElementById('welcomeAlert');
+        const formTitle = document.getElementById('formTitle');
+        const saveButton = document.getElementById('saveButton');
+
+        let imagemBase64Atual = null;
+        let isNovo = @(isNovo ? "true" : "false");
+
+        // ===== FUNÇÃO DE PREVIEW DA FOTO =====
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imagemUrl = e.target.result;
+
+                    // Atualizar preview da página
+                    previewThumb.src = imagemUrl;
+                    currentPhotoImg.src = imagemUrl;
+
+                    // Armazenar a imagem para envio
+                    imagemBase64Atual = imagemUrl;
+
+                    // Atualizar também a foto do cabeçalho no Layout
+                    const headerPhotoImg = document.querySelector('.establishment-photo img');
+                    const headerPhotoIcon = document.querySelector('.establishment-photo i');
+
+                    if (headerPhotoImg) {
+                        headerPhotoImg.src = imagemUrl;
+                        headerPhotoImg.style.display = 'block';
+                        if (headerPhotoIcon) headerPhotoIcon.style.display = 'none';
+                    }
+
+                    showToast('📸 Foto do estabelecimento atualizada!', 'info');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // ===== FUNÇÃO PARA ATUALIZAR TODOS OS ELEMENTOS DA TELA =====
+        function atualizarInterface(nome, imagemUrl, mensagemHero) {
+            // Atualizar campos do formulário
+            nomeInput.value = nome;
+
+            // Atualizar mensagem hero se existir
+            const mensagemInput = document.getElementById('mensagemHero');
+            if (mensagemInput && mensagemHero) {
+                mensagemInput.value = mensagemHero;
+            }
+
+            // Atualizar preview da página
+            previewName.textContent = nome;
+
+            if (imagemUrl && imagemUrl !== '') {
+                previewThumb.src = imagemUrl;
+                currentPhotoImg.src = imagemUrl;
+            }
+
+            // Atualizar cabeçalho do Layout
+            const appTitle = document.querySelector('.app-title h1');
+            if (appTitle) appTitle.textContent = nome;
+
+            const headerPhotoImg = document.querySelector('.establishment-photo img');
+            const headerPhotoIcon = document.querySelector('.establishment-photo i');
+
+            if (headerPhotoImg && imagemUrl && imagemUrl !== '') {
+                headerPhotoImg.src = imagemUrl;
+                headerPhotoImg.style.display = 'block';
+                if (headerPhotoIcon) headerPhotoIcon.style.display = 'none';
+            }
+
+            // Atualizar hero message na página de cardápio (se estiver nela)
+            const heroMessage = document.querySelector('.hero p');
+            if (heroMessage && mensagemHero) {
+                heroMessage.textContent = mensagemHero;
+            }
+        }
+
+        // ===== FUNÇÃO PARA CARREGAR DADOS DO SERVIDOR =====
+        async function carregarDados() {
+            try {
+                showLoading();
+                const response = await fetch('/Estabelecimento/Obter');
+                const data = await response.json();
+
+                if (data.success && data.existe) {
+                    // Atualizar todos os elementos da interface
+                    atualizarInterface(data.nome, data.imagem, data.mensagemHero);
+
+                    if (isNovo) {
+                        isNovo = false;
+                        welcomeAlert.style.display = 'none';
+                        formTitle.textContent = 'Editar Estabelecimento';
+                        saveButton.innerHTML = '<i class="fas fa-save"></i> Salvar alterações';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // ===== FUNÇÃO DE SALVAR =====
+        async function salvarConfig(event) {
+            event.preventDefault();
+
+            const nome = nomeInput.value.trim();
+            const mensagemHero = document.getElementById('mensagemHero')?.value.trim() || '';
+
+            if (!nome) {
+                showToast('❌ Digite o nome do estabelecimento!', 'error');
+                nomeInput.style.borderColor = 'var(--danger)';
+                return;
+            }
+
+            nomeInput.style.borderColor = '';
+
+            showLoading();
+
+            const requestData = {
+                NomeEstabelecimento: nome,
+                MensagemHero: mensagemHero,
+                ImagemBase64: imagemBase64Atual
+            };
+
+            try {
+                const response = await fetch('/Estabelecimento/Salvar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    // Atualizar a interface com os dados salvos
+                    atualizarInterface(nome, data.imagem, mensagemHero);
+
+                    // Limpar a imagem base64 temporária
+                    imagemBase64Atual = null;
+
+                    // Resetar o input file
+                    document.getElementById('fileInput').value = '';
+
+                    // Armazenar no localStorage para outras abas
+                    localStorage.setItem('estabelecimento_nome', nome);
+                    localStorage.setItem('estabelecimento_imagem', data.imagem || '');
+
+                    // Disparar evento para outras abas
+                    window.dispatchEvent(new CustomEvent('estabelecimentoAtualizado', {
+                        detail: { nome: nome, imagem: data.imagem }
+                    }));
+
+                    showToast(data.message, 'success');
+
+                    if (data.isNew || isNovo) {
+                        isNovo = false;
+                        welcomeAlert.style.display = 'none';
+                        formTitle.textContent = 'Editar Estabelecimento';
+                        saveButton.innerHTML = '<i class="fas fa-save"></i> Salvar alterações';
+                    }
+                } else {
+                    showToast(data.message || 'Erro ao salvar', 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showToast('Erro ao conectar com o servidor', 'error');
+                console.error('Erro:', error);
+            }
+        }
+
+        // ===== ATUALIZAR PREVIEW EM TEMPO REAL =====
+        nomeInput.addEventListener('input', () => {
+            previewName.textContent = nomeInput.value || 'Alfa Prime';
+        });
+
+        // ===== INICIALIZAR =====
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarDados();
+
+            const elements = document.querySelectorAll('.animate');
+            elements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+}

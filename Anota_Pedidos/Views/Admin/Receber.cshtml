@@ -1,0 +1,1135 @@
+﻿@model List<Anota_Pedidos.Models.PedidoModel>
+
+@{
+    ViewData["Title"] = "Receber";
+}
+
+@section Styles {
+    <style>
+        /* Estilos específicos da página de Recebimento */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+            .page-header h2 {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--primary);
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+                .page-header h2 i {
+                    color: var(--secondary);
+                }
+
+        .date-badge {
+            background: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 100px;
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .date-badge i {
+                color: var(--secondary);
+            }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--shadow);
+                border-color: var(--secondary);
+            }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            font-size: 1.8rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .queue-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            margin-bottom: 2rem;
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+            .queue-header h3 {
+                font-size: 1.3rem;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .queue-badge {
+            background: var(--secondary);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 100px;
+            font-size: 0.9rem;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .payment-card {
+            background: var(--bg-light);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+            .payment-card:hover {
+                border-color: var(--secondary);
+                background: white;
+                box-shadow: var(--shadow);
+            }
+
+            .payment-card.paid {
+                opacity: 0.8;
+                background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+                border-color: var(--success);
+            }
+
+                .payment-card.paid .payment-status {
+                    background: var(--success);
+                }
+
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px dashed var(--border-light);
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .customer-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--secondary), #ea580c);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .customer-details h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .customer-details span {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .payment-status {
+            background: var(--warning);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .items-list {
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+            .item-row:last-child {
+                border-bottom: none;
+            }
+
+        .payment-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+            font-size: 1.2rem;
+        }
+
+        .total-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .method-btn {
+            background: white;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 0.8rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+            .method-btn i {
+                font-size: 1.2rem;
+                color: var(--text-secondary);
+            }
+
+            .method-btn span {
+                font-size: 0.8rem;
+                font-weight: 600;
+            }
+
+            .method-btn:hover {
+                border-color: var(--secondary);
+                background: #fff7ed;
+            }
+
+            .method-btn.selected {
+                border-color: var(--secondary);
+                background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            }
+
+                .method-btn.selected i,
+                .method-btn.selected span {
+                    color: var(--secondary);
+                }
+
+        .payment-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 1rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+            .btn-primary:hover:not(:disabled) {
+                background: #ea580c;
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.3);
+            }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+            .btn-success:hover {
+                background: #16a34a;
+                transform: translateY(-2px);
+            }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border-light);
+            color: var(--text-secondary);
+        }
+
+            .btn-outline:hover {
+                border-color: var(--secondary);
+                color: var(--secondary);
+            }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .history-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+            .history-header h3 {
+                font-size: 1.3rem;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+            .history-item:hover {
+                background: #fff7ed;
+            }
+
+        .history-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .history-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+        }
+
+        .history-details h4 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .history-details span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .history-amount {
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+            .empty-state i {
+                font-size: 4rem;
+                margin-bottom: 1rem;
+                opacity: 0.5;
+            }
+
+        .customer-choice-badge {
+            display: inline-block;
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--secondary);
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            margin-top: 0.3rem;
+            font-weight: 500;
+        }
+
+        /* Modal de confirmação */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+            .confirm-modal.show {
+                display: flex;
+            }
+
+        .confirm-content {
+            background: linear-gradient(135deg, #fff, #fff7ed);
+            border-radius: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        @@keyframes slideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .confirm-header {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .confirm-header i {
+                font-size: 4rem;
+                color: white;
+                margin-bottom: 1rem;
+                animation: bounce 0.5s ease;
+            }
+
+        @@keyframes bounce {
+            0%, 100%
+
+        {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.2);
+        }
+
+        }
+
+        .confirm-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .confirm-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .confirm-body {
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .confirm-body .pedido-number {
+                font-size: 2.5rem;
+                font-weight: 800;
+                background: linear-gradient(135deg, #f97316, #ea580c);
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin: 1rem 0;
+            }
+
+            .confirm-body .pedido-info {
+                color: #475569;
+                margin: 1rem 0;
+                font-size: 1rem;
+            }
+
+        .confirm-footer {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .confirm-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .confirm-btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+            .confirm-btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px -5px #10b981;
+            }
+
+        .confirm-btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+            .confirm-btn-secondary:hover {
+                background: #cbd5e1;
+                transform: translateY(-2px);
+            }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 20px;
+            top: -20px;
+            animation: fall 3s linear forwards;
+            z-index: 10001;
+            pointer-events: none;
+        }
+
+        @@keyframes fall {
+            to
+
+        {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+        }
+
+        }
+
+        @@keyframes fadeInUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .animate {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @@media (max-width: 768px) {
+            .page-header
+
+        {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .payment-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .payment-actions {
+            flex-direction: column;
+        }
+
+        .history-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        }
+
+        @@media (max-width: 480px) {
+            .stats-grid
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        .payment-methods {
+            grid-template-columns: 1fr;
+        }
+
+        .method-btn {
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .tipo-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .tipo-consumir {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tipo-entregar {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        }
+    </style>
+}
+
+<div class="page-header">
+    <h2>
+        <i class="fas fa-cash-register"></i>
+        Receber Pagamentos
+    </h2>
+    <div class="date-badge">
+        <i class="far fa-calendar-alt"></i>
+        <span id="currentDate"></span>
+    </div>
+</div>
+
+<div class="stats-grid" id="statsGrid">
+    <!-- Stats serão atualizados dinamicamente -->
+</div>
+
+<div class="queue-section">
+    <div class="queue-header">
+        <h3><i class="fas fa-users"></i> Fila de Pagamentos</h3>
+        <span class="queue-badge" id="totalPendentes">0 pendentes</span>
+    </div>
+
+    <div class="payment-grid" id="paymentGrid">
+        <div class="empty-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Carregando pedidos...</p>
+        </div>
+    </div>
+</div>
+
+<div class="history-section">
+    <div class="history-header">
+        <h3><i class="fas fa-history"></i> Pagamentos Recentes</h3>
+        <span class="queue-badge">Hoje</span>
+    </div>
+    <div class="history-list" id="historyList">
+        <div class="empty-state" style="padding: 2rem;">
+            <i class="fas fa-history"></i>
+            <p>Carregando...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div class="confirm-modal" id="confirmModal">
+    <div class="confirm-content">
+        <div class="confirm-header">
+            <i class="fas fa-check-circle"></i>
+            <h2>Confirmar Pagamento</h2>
+            <p>Confirme os dados do pedido</p>
+        </div>
+        <div class="confirm-body">
+            <div class="pedido-number" id="confirmPedidoNumero">#0</div>
+            <div class="pedido-info" id="confirmPedidoInfo"></div>
+            <i class="fas fa-money-bill-wave" style="color: #f97316; font-size: 2rem; opacity: 0.5;"></i>
+            <p style="margin-top: 1rem; font-size: 0.85rem; color: #94a3b8;">
+                O pedido será finalizado e o cliente notificado
+            </p>
+        </div>
+        <div class="confirm-footer">
+            <button class="confirm-btn confirm-btn-secondary" onclick="fecharConfirmModal(false)">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="confirm-btn confirm-btn-primary" onclick="confirmarPagamentoFinal()">
+                <i class="fas fa-check-circle"></i> Confirmar Pagamento
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        let pedidoConnection = null;
+        let selectedMethods = {};
+        let pendingPagamento = null;
+
+        // ==================== CONEXÃO SIGNALR ====================
+        function conectarSignalRReceber() {
+            if (typeof signalR === 'undefined') {
+                setTimeout(conectarSignalRReceber, 1000);
+                return;
+            }
+
+            pedidoConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/pedidoHub")
+                .withAutomaticReconnect()
+                .build();
+
+            pedidoConnection.on("NovoPedido", function (pedido) {
+                console.log("🆕 Novo pedido recebido:", pedido);
+                showToast(`🆕 Novo pedido #${pedido.codigo || pedido.id} - ${pedido.cliente}`, 'success');
+                carregarPedidos();
+            });
+
+            pedidoConnection.on("PedidosAtualizados", function () {
+                console.log("🔄 Pedidos atualizados em tempo real!");
+                carregarPedidos();
+            });
+
+            pedidoConnection.on("PedidoPronto", function (data) {
+                console.log("✅ Pedido pronto para pagamento:", data);
+                carregarPedidos();
+            });
+
+            pedidoConnection.start()
+                .then(() => {
+                    console.log("✅ SignalR conectado!");
+                    pedidoConnection.invoke("EntrarGrupoAdmin").catch(e => console.log(e));
+                })
+                .catch(err => console.error("Erro SignalR:", err));
+        }
+
+        // ==================== CARREGAR PEDIDOS ====================
+        async function carregarPedidos() {
+            try {
+                const response = await fetch('/Admin/ObterPedidosProntos');
+                const data = await response.json();
+
+                if (data.success) {
+                    atualizarStats(data.totalPedidos);
+                    atualizarPaymentGrid(data.pedidos);
+                    await carregarHistorico();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar pedidos:', error);
+            }
+        }
+
+        async function carregarHistorico() {
+            try {
+                const response = await fetch('/Admin/ObterHistoricoPagamentos');
+                const data = await response.json();
+                if (data.success) {
+                    atualizarHistorico(data.pedidos);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+            }
+        }
+
+        function atualizarStats(total) {
+            const statsGrid = document.getElementById('statsGrid');
+            const totalReceber = calcularTotalReceber();
+
+            statsGrid.innerHTML = `
+                <div class="stat-card animate">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-value">${total}</div>
+                    <div class="stat-label">Aguardando pagamento</div>
+                </div>
+                <div class="stat-card animate" style="animation-delay: 0.1s">
+                    <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
+                    <div class="stat-value">R$ ${totalReceber.toFixed(2)}</div>
+                    <div class="stat-label">A receber</div>
+                </div>
+            `;
+            document.getElementById('totalPendentes').textContent = `${total} pendentes`;
+        }
+
+        function calcularTotalReceber() {
+            let total = 0;
+            document.querySelectorAll('.payment-card').forEach(card => {
+                const totalSpan = card.querySelector('.total-amount');
+                if (totalSpan && !card.classList.contains('paid')) {
+                    const valor = parseFloat(totalSpan.textContent.replace('R$', '').replace(',', '.'));
+                    if (!isNaN(valor)) total += valor;
+                }
+            });
+            return total;
+        }
+
+              function atualizarPaymentGrid(pedidos) {
+            const paymentGrid = document.getElementById('paymentGrid');
+
+            if (!pedidos || pedidos.length === 0) {
+                paymentGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Nenhum pedido aguardando pagamento</h3>
+                        <p>Os pedidos prontos aparecerão aqui</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            pedidos.forEach(pedido => {
+                const tipoPedidoClass = pedido.tipoPedido === 'ENTREGAR' ? 'tipo-entregar' : 'tipo-consumir';
+                const tipoPedidoIcon = pedido.tipoPedido === 'ENTREGAR' ? 'fa-shopping-bag' : 'fa-utensils';
+                const tipoPedidoText = pedido.tipoPedido === 'ENTREGAR' ? 'Para levar' : 'Comer no local';
+
+                // Verificar qual método foi pré-selecionado pelo cliente
+                const clienteMethod = pedido.formaPagamento || '';
+
+                html += `
+                    <div class="payment-card" data-pedido-id="${pedido.id}" data-codigo-pedido="${pedido.codigoPedido}">
+                        <div class="payment-header">
+                            <div class="customer-info">
+                                <div class="customer-avatar">${pedido.clienteNome?.charAt(0) || 'C'}</div>
+                                <div class="customer-details">
+                                    <h4>${escapeHtml(pedido.clienteNome) || "Cliente"}</h4>
+                                    <span>#${pedido.codigoPedido} • ${pedido.hora}</span>
+                                    <br>
+                                     <small><i class="fab fa-whatsapp"></i> ${escapeHtml(pedido.telefone) || "Não informado"}</small>
+                                    <br>
+                                    <small class="tipo-badge ${tipoPedidoClass}">
+                                        <i class="fas ${tipoPedidoIcon}"></i> ${tipoPedidoText}
+                                    </small>
+                                </div>
+                            </div>
+                            <span class="payment-status">Pendente</span>
+                        </div>
+
+                        <div class="items-list">
+                            ${pedido.itens.map(item => `
+                                <div class="item-row">
+                                    <span>${item.quantidade} x ${escapeHtml(item.nomeProduto)}</span>
+                                    <span>R$ ${item.total.toFixed(2)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="payment-total">
+                            <span>Total</span>
+                            <span class="total-amount">R$ ${pedido.valorTotal.toFixed(2)}</span>
+                        </div>
+
+                        <div class="payment-methods" id="methods-${pedido.id}">
+                            <div class="method-btn ${clienteMethod === 'DINHEIRO' ? 'selected cliente-choice' : ''}" onclick="selectMethod(event, ${pedido.id}, 'Dinheiro')">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Dinheiro</span>
+                                ${clienteMethod === 'DINHEIRO' ? '<i class="fas fa-check-circle" style="position: absolute; top: -5px; right: -5px; background: white; border-radius: 50%; color: #10b981; font-size: 0.8rem;"></i>' : ''}
+                            </div>
+                            <div class="method-btn ${clienteMethod === 'CARTÃO' ? 'selected cliente-choice' : ''}" onclick="selectMethod(event, ${pedido.id}, 'Cartão')">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Cartão</span>
+                                ${clienteMethod === 'CARTÃO' ? '<i class="fas fa-check-circle" style="position: absolute; top: -5px; right: -5px; background: white; border-radius: 50%; color: #10b981; font-size: 0.8rem;"></i>' : ''}
+                            </div>
+                            <div class="method-btn ${clienteMethod === 'PIX' ? 'selected cliente-choice' : ''}" onclick="selectMethod(event, ${pedido.id}, 'PIX')">
+                                <i class="fas fa-qrcode"></i>
+                                <span>PIX</span>
+                                ${clienteMethod === 'PIX' ? '<i class="fas fa-check-circle" style="position: absolute; top: -5px; right: -5px; background: white; border-radius: 50%; color: #10b981; font-size: 0.8rem;"></i>' : ''}
+                            </div>
+                        </div>
+
+                        ${pedido.formaPagamento ? `
+                            <div class="customer-choice-badge">
+                                <i class="fas fa-user-check"></i> Cliente escolheu: ${pedido.formaPagamento}
+                            </div>
+                        ` : ''}
+
+                        <div class="payment-actions">
+                            <button class="btn btn-primary" onclick="abrirConfirmModal(${pedido.id}, ${pedido.codigoPedido}, '${escapeHtml(pedido.clienteNome).replace(/'/g, "\\'")}')">
+                                <i class="fas fa-check"></i>
+                                Confirmar Pagamento
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Pré-selecionar o método do cliente no selectedMethods
+                if (clienteMethod && !selectedMethods[pedido.id]) {
+                    selectedMethods[pedido.id] = clienteMethod;
+                }
+            });
+
+            paymentGrid.innerHTML = html;
+        }
+
+        function atualizarHistorico(pedidos) {
+            const historyList = document.getElementById('historyList');
+
+            if (!pedidos || pedidos.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-state" style="padding: 2rem;">
+                        <i class="fas fa-history"></i>
+                        <p>Nenhum pagamento realizado hoje</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            pedidos.forEach(pedido => {
+                html += `
+                    <div class="history-item">
+                        <div class="history-info">
+                            <div class="history-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="history-details">
+                                <h4>${escapeHtml(pedido.clienteNome)} #${pedido.codigoPedido}</h4>
+                                <span>${pedido.hora} • ${pedido.formaPagamento}</span>
+                            </div>
+                        </div>
+                        <div class="history-amount">R$ ${pedido.valorTotal.toFixed(2)}</div>
+                    </div>
+                `;
+            });
+
+            historyList.innerHTML = html;
+        }
+
+        // ==================== MODAL DE CONFIRMAÇÃO ====================
+        function abrirConfirmModal(pedidoId, codigoPedido, clienteNome) {
+            if (!selectedMethods[pedidoId]) {
+                showToast('Selecione uma forma de pagamento!', 'error');
+                return;
+            }
+
+            pendingPagamento = {
+                pedidoId: pedidoId,
+                codigoPedido: codigoPedido,
+                clienteNome: clienteNome,
+                metodo: selectedMethods[pedidoId]
+            };
+
+            const modal = document.getElementById('confirmModal');
+            const numeroSpan = document.getElementById('confirmPedidoNumero');
+            const infoSpan = document.getElementById('confirmPedidoInfo');
+
+            if (numeroSpan) numeroSpan.textContent = `#${codigoPedido}`;
+            if (infoSpan) infoSpan.textContent = `${clienteNome} • Pagamento: ${selectedMethods[pedidoId]}`;
+
+            if (modal) modal.classList.add('show');
+            criarConfetes();
+        }
+
+        function fecharConfirmModal(confirmado = false) {
+            const modal = document.getElementById('confirmModal');
+            if (modal) modal.classList.remove('show');
+            if (!confirmado) pendingPagamento = null;
+        }
+
+        async function confirmarPagamentoFinal() {
+            if (!pendingPagamento) return;
+
+            showLoading();
+
+            try {
+                const response = await fetch('/Admin/AtualizarStatusPedido', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: pendingPagamento.pedidoId,
+                        status: 'FINALIZADO',
+                        formaPagamento: pendingPagamento.metodo
+                    })
+                });
+
+                const data = await response.json();
+                hideLoading();
+                fecharConfirmModal(true);
+
+                if (data.success) {
+                    showToast(`✅ ${data.message}`, 'success');
+                    carregarPedidos(); // Recarrega a lista
+                } else {
+                    showToast(data.message || 'Erro ao confirmar pagamento', 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showToast('Erro ao conectar com o servidor', 'error');
+            }
+        }
+
+        function selectMethod(event, pedidoId, method) {
+            selectedMethods[pedidoId] = method;
+
+            document.querySelectorAll(`#methods-${pedidoId} .method-btn`).forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        function criarConfetes() {
+            const colors = ['#10b981', '#059669', '#34d399', '#6ee7b7', '#f97316'];
+            for (let i = 0; i < 80; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.width = (Math.random() * 8 + 4) + 'px';
+                    confetti.style.height = (Math.random() * 12 + 8) + 'px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        // ==================== UTILITÁRIOS ====================
+        function showToast(message, type) {
+            // Tentar usar o toast existente
+            const toast = document.getElementById('toast');
+            if (toast) {
+                const icon = toast.querySelector('i');
+                if (icon) {
+                    icon.className = type === 'success' ? 'fas fa-check-circle' : type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+                }
+                const msgSpan = document.getElementById('toastMessage');
+                if (msgSpan) msgSpan.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            } else {
+                // Fallback silencioso - sem alert!
+                console.log(`${type}: ${message}`);
+            }
+        }
+
+        function showLoading() {
+            const loading = document.getElementById('loadingBar');
+            if (loading) loading.style.display = 'block';
+        }
+
+        function hideLoading() {
+            const loading = document.getElementById('loadingBar');
+            if (loading) loading.style.display = 'none';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function atualizarData() {
+            const hoje = new Date();
+            document.getElementById('currentDate').textContent = hoje.toLocaleDateString('pt-BR');
+        }
+
+        // Fechar modal ao clicar fora
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('confirmModal');
+            if (e.target === modal) fecharConfirmModal(false);
+        });
+
+        // ==================== INICIALIZAR ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarData();
+            conectarSignalRReceber();
+            carregarPedidos();
+            setInterval(carregarPedidos, 30000);
+        });
+    </script>
+}

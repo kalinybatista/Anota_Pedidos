@@ -1,0 +1,1358 @@
+﻿@model Anota_Pedidos.ViewModels.GerenciarCardapioViewModel
+
+@{
+    ViewData["Title"] = "Gerenciar Cardápio";
+
+
+    // Obter estabelecimento da sessão
+    var estabelecimentoJson = Context.Session.GetString("Estabelecimento");
+    EstabelecimentoSessionDTO estabelecimento = null;
+
+    if (!string.IsNullOrEmpty(estabelecimentoJson))
+    {
+        estabelecimento = JsonSerializer.Deserialize<EstabelecimentoSessionDTO>(estabelecimentoJson);
+    }
+}
+
+@functions {
+    public string SafeString(string value)
+    {
+        return value ?? "";
+    }
+}
+
+@section Styles {
+    <style>
+        /* Estilos específicos da página de Gerenciar Cardápio */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+            .page-header h2 {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--primary);
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+                .page-header h2 i {
+                    color: var(--secondary);
+                }
+
+        .btn-new {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .btn-new:hover {
+                background: #ea580c;
+                transform: translateY(-3px);
+                box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.3);
+            }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                border-color: var(--secondary);
+            }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+        }
+
+            .category-card:hover {
+                box-shadow: var(--shadow);
+                border-color: var(--secondary);
+            }
+
+        .category-card.oculto {
+            opacity: 0.7;
+            background: #f8fafc;
+        }
+
+        .category-header {
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .category-header h3 {
+                font-size: 1.3rem;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+
+        .category-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+            .category-actions button {
+                background: rgba(255,255,255,0.2);
+                border: none;
+                color: white;
+                width: 36px;
+                height: 36px;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: var(--transition);
+            }
+
+                .category-actions button:hover {
+                    background: rgba(255,255,255,0.3);
+                    transform: scale(1.1);
+                }
+
+        .category-body {
+            padding: 1.5rem;
+        }
+
+        .products-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: var(--radius-sm);
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .product-item.oculto {
+            opacity: 0.6;
+            background: #f1f5f9;
+        }
+
+            .product-item:hover {
+                border-color: var(--secondary);
+                background: white;
+            }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .product-image {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            font-size: 1.2rem;
+            overflow: hidden;
+        }
+
+            .product-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .product-details h4 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .product-details p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .product-price {
+            font-weight: 700;
+            color: var(--success);
+            font-size: 1.1rem;
+            margin: 0 1rem;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+            .product-actions button {
+                background: transparent;
+                border: none;
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: var(--transition);
+                color: var(--text-secondary);
+            }
+
+                .product-actions button:hover {
+                    background: var(--bg-light);
+                    color: var(--secondary);
+                }
+
+        .btn-add-product {
+            width: 100%;
+            background: var(--bg-light);
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+
+            .btn-add-product:hover {
+                border-color: var(--secondary);
+                background: #fff7ed;
+                color: var(--secondary);
+            }
+
+        .empty-products {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+            .empty-products i {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+                opacity: 0.5;
+            }
+
+        .oculto-badge {
+            background: #f59e0b;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .restaurado-badge {
+            background: #10b981;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+            .modal.show {
+                display: flex;
+            }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @@keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+            .modal-header h2 {
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+            .modal-close:hover {
+                background: rgba(255,255,255,0.3);
+                transform: rotate(90deg);
+            }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+            .form-label .required {
+                color: var(--danger);
+                margin-left: 0.25rem;
+            }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+            .form-input:focus, .form-textarea:focus, .form-select:focus {
+                outline: none;
+                border-color: var(--secondary);
+                box-shadow: 0 0 0 4px #fff7ed;
+            }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .image-upload {
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-light);
+        }
+
+            .image-upload:hover {
+                border-color: var(--secondary);
+                background: #fff7ed;
+            }
+
+            .image-upload i {
+                font-size: 3rem;
+                color: var(--secondary);
+                margin-bottom: 1rem;
+            }
+
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin: 1rem auto;
+            border: 3px solid var(--secondary);
+        }
+
+            .image-preview img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--border-light);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: #ea580c;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px -5px var(--secondary);
+            }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-secondary);
+        }
+
+            .btn-secondary:hover {
+                background: #e2e8f0;
+            }
+
+        /* Modal de Confirmação Personalizada */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirm-modal.show {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: linear-gradient(135deg, #fff, #fff7ed);
+            border-radius: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: confirmSlideUp 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        @@keyframes confirmSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .confirm-header {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .confirm-header i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: confirmBounce 0.5s ease;
+        }
+
+        @@keyframes confirmBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .confirm-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .confirm-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .confirm-body {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .confirm-body .item-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: #f1f5f9;
+            padding: 0.8rem;
+            border-radius: 16px;
+            margin: 1rem 0;
+            word-break: break-word;
+        }
+
+        .confirm-body .warning-text {
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .confirm-body .info-text {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .confirm-footer {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .confirm-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .confirm-btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .confirm-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px #10b981;
+        }
+
+        .confirm-btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .confirm-btn-secondary:hover {
+            background: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+        .confirm-btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .confirm-btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px #f59e0b;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 20px;
+            top: -20px;
+            animation: fall 3s linear forwards;
+            z-index: 10001;
+            pointer-events: none;
+        }
+
+        @@keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @@media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+                .page-header h2 {
+                    font-size: 1.5rem;
+                }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-new {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .product-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .product-info {
+                width: 100%;
+            }
+
+            .product-price {
+                margin: 0;
+            }
+
+            .product-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .confirm-footer {
+                flex-direction: column;
+            }
+
+            .confirm-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+<div class="page-header">
+    <h2><i class="fas fa-pencil-alt"></i> Gerenciar Cardápio</h2>
+    <button class="btn-new" onclick="abrirModalCategoria()"><i class="fas fa-plus"></i> Nova Categoria</button>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card animate">
+        <div class="stat-value" id="totalCategorias">@Model.Categorias.Count(c => c.Ativo)</div>
+        <div class="stat-label">Categorias Ativas</div>
+        <small style="color: var(--text-muted);">(@Model.Categorias.Count(c => !c.Ativo) ocultas)</small>
+    </div>
+    <div class="stat-card animate" style="animation-delay: 0.1s">
+        <div class="stat-value" id="totalProdutos">@Model.ProdutosAtivos</div>
+        <div class="stat-label">Produtos Ativos</div>
+        <small style="color: var(--text-muted);">(@(Model.TotalProdutos - Model.ProdutosAtivos) ocultos)</small>
+    </div>
+    <div class="stat-card animate" style="animation-delay: 0.2s">
+        <div class="stat-value" id="totalMaisVendidos">@Model.TotalMaisVendidos</div>
+        <div class="stat-label">Mais vendidos</div>
+    </div>
+</div>
+
+<div class="categories-grid" id="categoriesGrid">
+    @foreach (var categoria in Model.Categorias)
+    {
+        <div class="category-card @(!categoria.Ativo ? "oculto" : "")" data-categoria-id="@categoria.Id_Categoria" data-categoria-nome="@categoria.Nome_Categoria">
+            <div class="category-header">
+                <h3>
+                    <i class="fas fa-tag"></i> 
+                    @categoria.Nome_Categoria
+                    @if (!categoria.Ativo)
+                    {
+                        <span class="oculto-badge">
+                            <i class="fas fa-eye-slash"></i> Oculto
+                        </span>
+                    }
+                </h3>
+                <div class="category-actions">
+                    <button onclick="editarCategoria(@categoria.Id_Categoria)" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    @if (categoria.Ativo)
+                    {
+                        <button onclick="ocultarCategoria(@categoria.Id_Categoria, '@categoria.Nome_Categoria')" 
+                                style="color: #f59e0b;" title="Ocultar categoria e produtos">
+                            <i class="fas fa-eye-slash"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <button onclick="restaurarCategoria(@categoria.Id_Categoria, '@categoria.Nome_Categoria')" 
+                                style="color: #10b981;" title="Restaurar categoria">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+            <div class="category-body">
+                <div class="products-list" id="productsList-@categoria.Id_Categoria">
+                    @if (categoria.Produtos != null && categoria.Produtos.Any())
+                    {
+                        foreach (var produto in categoria.Produtos)
+                        {
+                            <div class="product-item @(!produto.Ativo ? "oculto" : "")" data-produto-id="@produto.Id_Produto" data-produto-nome="@produto.Nome_Produto">
+                                <div class="product-info">
+                                    <div class="product-image">
+                                        @if (!string.IsNullOrEmpty(produto.Img_Produto))
+                                        {
+                                            <img src="@produto.Img_Produto" alt="@produto.Nome_Produto">
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-hamburger"></i>
+                                        }
+                                    </div>
+                                    <div class="product-details">
+                                        <h4>
+                                            @produto.Nome_Produto
+                                            @if (!produto.Ativo)
+                                            {
+                                                <span class="oculto-badge">
+                                                    <i class="fas fa-eye-slash"></i> Oculto
+                                                </span>
+                                            }
+                                        </h4>
+                                        <p>@(produto.Descricao_Produto?.Length > 50 ? produto.Descricao_Produto.Substring(0, 50) + "..." : produto.Descricao_Produto)</p>
+                                    </div>
+                                </div>
+                                <div class="product-price">R$ @produto.Valor_Produto.ToString("F2")</div>
+                                <div class="product-actions">
+                                    <button onclick="editarProduto(@produto.Id_Produto)" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    @if (produto.Ativo)
+                                    {
+                                        <button onclick="ocultarProduto(@produto.Id_Produto, '@produto.Nome_Produto')" 
+                                                style="color: #f59e0b;" title="Ocultar produto">
+                                            <i class="fas fa-eye-slash"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button onclick="restaurarProduto(@produto.Id_Produto, '@produto.Nome_Produto')" 
+                                                style="color: #10b981;" title="Restaurar produto">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-products">
+                            <i class="fas fa-box-open"></i>
+                            <p>Nenhum produto nesta categoria</p>
+                        </div>
+                    }
+                </div>
+                <button class="btn-add-product" onclick="abrirModalProduto(@categoria.Id_Categoria)">
+                    <i class="fas fa-plus"></i> Adicionar Produto
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal Categoria -->
+<div class="modal" id="modalCategoria">
+    <div class="modal-content">
+        <div class="modal-header"><h2><i class="fas fa-folder-plus"></i> <span id="modalCategoriaTitulo">Nova Categoria</span></h2><button class="modal-close" onclick="fecharModal('modalCategoria')"><i class="fas fa-times"></i></button></div>
+        <div class="modal-body">
+            <div class="form-group"><label class="form-label">Nome da Categoria <span class="required">*</span></label><input type="text" class="form-input" id="categoriaNome" placeholder="Ex: Espetinhos"></div>
+            <div class="form-group"><label class="form-label">Descrição (opcional)</label><textarea class="form-textarea" id="categoriaDescricao" placeholder="Descreva a categoria..."></textarea></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" onclick="fecharModal('modalCategoria')"><i class="fas fa-times"></i> Cancelar</button><button class="btn btn-primary" onclick="salvarCategoria()"><i class="fas fa-save"></i> Salvar</button></div>
+    </div>
+</div>
+
+<!-- Modal Produto -->
+<div class="modal" id="modalProduto">
+    <div class="modal-content">
+        <div class="modal-header"><h2><i class="fas fa-hamburger"></i> <span id="modalProdutoTitulo">Novo Produto</span></h2><button class="modal-close" onclick="fecharModal('modalProduto')"><i class="fas fa-times"></i></button></div>
+        <div class="modal-body">
+            <div class="form-group"><label class="form-label">Nome do Produto <span class="required">*</span></label><input type="text" class="form-input" id="produtoNome" placeholder="Ex: Filé Mignon"></div>
+            <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-textarea" id="produtoDescricao" placeholder="Descreva o produto..."></textarea></div>
+            <div class="form-group"><label class="form-label">Preço <span class="required">*</span></label><input type="text" class="form-input" id="produtoPreco" placeholder="R$ 0,00"></div>
+            <div class="form-group">
+                <label class="form-label">Categoria <span class="required">*</span></label><select class="form-select" id="produtoCategoria">
+                    @foreach (var categoria in Model.Categorias)
+                    {
+                        <option value="@categoria.Id_Categoria">@categoria.Nome_Categoria</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group"><label class="form-label">Imagem do Produto</label><div class="image-upload" onclick="document.getElementById('fileInput').click()"><i class="fas fa-cloud-upload-alt"></i><p>Clique para fazer upload da imagem</p><div class="image-preview" id="imagePreview" style="display: none;"><img src="" alt="Preview"></div></div><input type="file" id="fileInput" style="display: none;" accept="image/*" onchange="previewImage(this)"></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" onclick="fecharModal('modalProduto')"><i class="fas fa-times"></i> Cancelar</button><button class="btn btn-primary" onclick="salvarProduto()"><i class="fas fa-save"></i> Salvar</button></div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação Personalizada -->
+<div class="confirm-modal" id="confirmModal">
+    <div class="confirm-content">
+        <div class="confirm-header">
+            <i class="fas fa-question-circle" id="confirmIcon"></i>
+            <h2 id="confirmTitle">Confirmar</h2>
+            <p id="confirmSubtitle">Confirme sua ação</p>
+        </div>
+        <div class="confirm-body">
+            <div class="item-name" id="confirmItemName">Item</div>
+            <div class="warning-text" id="confirmWarning"></div>
+            <div class="info-text" id="confirmInfo"></div>
+        </div>
+        <div class="confirm-footer">
+            <button class="confirm-btn confirm-btn-secondary" onclick="fecharConfirmModal()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="confirm-btn" id="confirmActionBtn">
+                <i class="fas fa-check"></i> Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentCategoriaId = null;
+        let currentProdutoId = null;
+        let confirmCallback = null;
+        let confirmConfig = {};
+
+        // ==================== Utilitários ====================
+
+        function fecharModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            if (modalId === 'modalProduto') {
+                document.getElementById('fileInput').value = '';
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.style.display = 'block';
+                    preview.querySelector('img').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function criarConfetes() {
+            const colors = ['#10b981', '#059669', '#34d399', '#6ee7b7', '#f59e0b'];
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.width = (Math.random() * 8 + 4) + 'px';
+                    confetti.style.height = (Math.random() * 12 + 8) + 'px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        // ==================== Modal de Confirmação ====================
+
+        function abrirConfirmModal(config) {
+            const modal = document.getElementById('confirmModal');
+            const icon = document.getElementById('confirmIcon');
+            const title = document.getElementById('confirmTitle');
+            const subtitle = document.getElementById('confirmSubtitle');
+            const itemNameEl = document.getElementById('confirmItemName');
+            const warningEl = document.getElementById('confirmWarning');
+            const infoEl = document.getElementById('confirmInfo');
+            const actionBtn = document.getElementById('confirmActionBtn');
+
+            if (icon) {
+                icon.className = config.icon || 'fas fa-question-circle';
+                icon.style.color = config.iconColor || '#64748b';
+            }
+            if (title) title.textContent = config.title || 'Confirmar';
+            if (subtitle) subtitle.textContent = config.subtitle || 'Confirme sua ação';
+            if (itemNameEl) itemNameEl.textContent = config.itemName || 'Item';
+            if (warningEl) {
+                if (config.warning) {
+                    warningEl.innerHTML = config.warning;
+                    warningEl.style.display = 'flex';
+                } else {
+                    warningEl.style.display = 'none';
+                }
+            }
+            if (infoEl) {
+                if (config.info) {
+                    infoEl.innerHTML = config.info;
+                    infoEl.style.display = 'block';
+                } else {
+                    infoEl.style.display = 'none';
+                }
+            }
+
+            if (actionBtn) {
+                actionBtn.innerHTML = config.btnText || '<i class="fas fa-check"></i> Confirmar';
+                actionBtn.className = `confirm-btn ${config.btnClass || 'confirm-btn-primary'}`;
+            }
+
+            confirmCallback = config.onConfirm;
+            modal.classList.add('show');
+        }
+
+        function fecharConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.classList.remove('show');
+            confirmCallback = null;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const actionBtn = document.getElementById('confirmActionBtn');
+            if (actionBtn) {
+                actionBtn.addEventListener('click', function() {
+                    if (confirmCallback) {
+                        confirmCallback();
+                    }
+                    fecharConfirmModal();
+                });
+            }
+
+            const modal = document.getElementById('confirmModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        fecharConfirmModal();
+                    }
+                });
+            }
+        });
+
+        // ==================== Categoria Functions ====================
+
+        function abrirModalCategoria() {
+            currentCategoriaId = null;
+            document.getElementById('modalCategoriaTitulo').textContent = 'Nova Categoria';
+            document.getElementById('categoriaNome').value = '';
+            document.getElementById('categoriaDescricao').value = '';
+            document.getElementById('modalCategoria').classList.add('show');
+        }
+
+        async function editarCategoria(id) {
+            try {
+                showLoading();
+                const response = await fetch(`/Editar/ObterCategoria?id=${id}`);
+                const data = await response.json();
+                if (data.success) {
+                    currentCategoriaId = id;
+                    document.getElementById('modalCategoriaTitulo').textContent = 'Editar Categoria';
+                    document.getElementById('categoriaNome').value = data.categoria.nome;
+                    document.getElementById('categoriaDescricao').value = data.categoria.descricao || '';
+                    document.getElementById('modalCategoria').classList.add('show');
+                } else { showToast(data.message, 'error'); }
+            } catch (error) { showToast('Erro ao carregar categoria: ' + error.message, 'error'); }
+            finally { hideLoading(); }
+        }
+
+        function ocultarCategoria(id, nome) {
+            abrirConfirmModal({
+                icon: 'fas fa-eye-slash',
+                iconColor: '#f59e0b',
+                title: 'Ocultar Categoria',
+                subtitle: 'Esta ação ocultará a categoria do cardápio',
+                itemName: `Categoria: "${nome}"`,
+                warning: '<i class="fas fa-exclamation-triangle"></i> Todos os produtos desta categoria também serão ocultados!',
+                info: '📦 O histórico de pedidos permanece intacto. Você pode restaurar a categoria a qualquer momento.',
+                btnText: '<i class="fas fa-eye-slash"></i> Ocultar',
+                btnClass: 'confirm-btn-warning',
+                onConfirm: async () => {
+                    try {
+                        showLoading();
+                        const response = await fetch('/Editar/OcultarCategoria', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(id)
+                        });
+                        const data = await response.json();
+                        hideLoading();
+                        if (data.success) {
+                            showToast(data.message, 'success');
+                            criarConfetes();
+                            location.reload();
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    } catch (error) {
+                        hideLoading();
+                        showToast('Erro ao ocultar categoria', 'error');
+                    }
+                }
+            });
+        }
+
+        function restaurarCategoria(id, nome) {
+            abrirConfirmModal({
+                icon: 'fas fa-eye',
+                iconColor: '#10b981',
+                title: 'Restaurar Categoria',
+                subtitle: 'Esta categoria voltará ao cardápio',
+                itemName: `Categoria: "${nome}"`,
+                info: '🔄 Os produtos da categoria também serão restaurados e voltarão a aparecer no cardápio.',
+                btnText: '<i class="fas fa-eye"></i> Restaurar',
+                btnClass: 'confirm-btn-primary',
+                onConfirm: async () => {
+                    try {
+                        showLoading();
+                        const response = await fetch('/Editar/RestaurarCategoria', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(id)
+                        });
+                        const data = await response.json();
+                        hideLoading();
+                        if (data.success) {
+                            showToast(data.message, 'success');
+                            criarConfetes();
+                            location.reload();
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    } catch (error) {
+                        hideLoading();
+                        showToast('Erro ao restaurar categoria', 'error');
+                    }
+                }
+            });
+        }
+
+        async function salvarCategoria() {
+            const nome = document.getElementById('categoriaNome').value.trim();
+            const descricao = document.getElementById('categoriaDescricao').value;
+            if (!nome) { showToast('Digite o nome da categoria', 'error'); return; }
+            try {
+                showLoading();
+                const categoriaData = { Id_Categoria: currentCategoriaId || 0, Nome_Categoria: nome, Descricao_Categoria: descricao || null };
+                const url = currentCategoriaId ? '/Editar/AtualizarCategoria' : '/Editar/AdicionarCategoria';
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(categoriaData) });
+                const data = await response.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    fecharModal('modalCategoria');
+                    location.reload();
+                } else { showToast(data.message, 'error'); }
+            } catch (error) { console.error('Erro:', error); showToast('Erro ao salvar categoria: ' + error.message, 'error'); }
+            finally { hideLoading(); }
+        }
+
+        // ==================== Produto Functions ====================
+
+        function abrirModalProduto(categoriaId) {
+            currentCategoriaId = categoriaId;
+            currentProdutoId = null;
+            document.getElementById('modalProdutoTitulo').textContent = 'Novo Produto';
+            document.getElementById('produtoNome').value = '';
+            document.getElementById('produtoDescricao').value = '';
+            document.getElementById('produtoPreco').value = '';
+            document.getElementById('produtoCategoria').value = categoriaId;
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('modalProduto').classList.add('show');
+        }
+
+        async function editarProduto(id) {
+            try {
+                showLoading();
+                const response = await fetch(`/Editar/ObterProduto?id=${id}`);
+                const data = await response.json();
+                if (data.success) {
+                    currentProdutoId = id;
+                    currentCategoriaId = data.produto.idCategoria;
+                    document.getElementById('modalProdutoTitulo').textContent = 'Editar Produto';
+                    document.getElementById('produtoNome').value = data.produto.nome;
+                    document.getElementById('produtoDescricao').value = data.produto.descricao || '';
+                    document.getElementById('produtoPreco').value = data.produto.valor;
+                    document.getElementById('produtoCategoria').value = data.produto.idCategoria;
+                    if (data.produto.imagem) {
+                        const preview = document.getElementById('imagePreview');
+                        preview.style.display = 'block';
+                        preview.querySelector('img').src = data.produto.imagem;
+                    } else { document.getElementById('imagePreview').style.display = 'none'; }
+                    document.getElementById('modalProduto').classList.add('show');
+                } else { showToast(data.message, 'error'); }
+            } catch (error) { console.error('Erro:', error); showToast('Erro ao carregar produto: ' + error.message, 'error'); }
+            finally { hideLoading(); }
+        }
+
+        function ocultarProduto(id, nome) {
+            abrirConfirmModal({
+                icon: 'fas fa-eye-slash',
+                iconColor: '#f59e0b',
+                title: 'Ocultar Produto',
+                subtitle: 'Este produto será ocultado do cardápio',
+                itemName: `Produto: "${nome}"`,
+                info: '📦 O produto não será excluído, apenas ficará invisível no cardápio. O histórico de pedidos permanece intacto.',
+                btnText: '<i class="fas fa-eye-slash"></i> Ocultar',
+                btnClass: 'confirm-btn-warning',
+                onConfirm: async () => {
+                    try {
+                        showLoading();
+                        const response = await fetch('/Editar/OcultarProduto', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(id)
+                        });
+                        const data = await response.json();
+                        hideLoading();
+                        if (data.success) {
+                            showToast(data.message, 'success');
+                            criarConfetes();
+                            location.reload();
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    } catch (error) {
+                        hideLoading();
+                        showToast('Erro ao ocultar produto', 'error');
+                    }
+                }
+            });
+        }
+
+        function restaurarProduto(id, nome) {
+            abrirConfirmModal({
+                icon: 'fas fa-eye',
+                iconColor: '#10b981',
+                title: 'Restaurar Produto',
+                subtitle: 'Este produto voltará ao cardápio',
+                itemName: `Produto: "${nome}"`,
+                info: '🔄 O produto voltará a aparecer no cardápio para novos pedidos.',
+                btnText: '<i class="fas fa-eye"></i> Restaurar',
+                btnClass: 'confirm-btn-primary',
+                onConfirm: async () => {
+                    try {
+                        showLoading();
+                        const response = await fetch('/Editar/RestaurarProduto', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(id)
+                        });
+                        const data = await response.json();
+                        hideLoading();
+                        if (data.success) {
+                            showToast(data.message, 'success');
+                            criarConfetes();
+                            location.reload();
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    } catch (error) {
+                        hideLoading();
+                        showToast('Erro ao restaurar produto', 'error');
+                    }
+                }
+            });
+        }
+
+        async function salvarProduto() {
+            const nome = document.getElementById('produtoNome').value.trim();
+            const descricao = document.getElementById('produtoDescricao').value;
+            const preco = document.getElementById('produtoPreco').value;
+            const categoriaId = document.getElementById('produtoCategoria').value;
+            const imagemArquivo = document.getElementById('fileInput').files[0];
+            if (!nome) { showToast('Digite o nome do produto', 'error'); return; }
+            if (!preco) { showToast('Digite o preço do produto', 'error'); return; }
+            let precoNumerico = preco.toString().replace('R$', '').trim();
+            precoNumerico = parseFloat(precoNumerico.replace(',', '.'));
+            if (isNaN(precoNumerico) || precoNumerico <= 0) { showToast('Digite um preço válido (ex: 15,00)', 'error'); return; }
+            try {
+                showLoading();
+                const formData = new FormData();
+                formData.append('Id_Produto', currentProdutoId || 0);
+                formData.append('Nome_Produto', nome);
+                formData.append('Descricao_Produto', descricao);
+                formData.append('Valor_Produto', precoNumerico);
+                formData.append('Id_Categoria', categoriaId);
+                if (imagemArquivo) formData.append('imagemArquivo', imagemArquivo);
+                const url = currentProdutoId ? '/Editar/AtualizarProduto' : '/Editar/AdicionarProduto';
+                const response = await fetch(url, { method: 'POST', body: formData });
+                const data = await response.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    fecharModal('modalProduto');
+                    location.reload();
+                } else { showToast(data.message, 'error'); }
+            } catch (error) { console.error('Erro:', error); showToast('Erro ao salvar produto: ' + error.message, 'error'); }
+            finally { hideLoading(); }
+        }
+
+        // ==================== Stats Functions ====================
+
+        async function atualizarStats() {
+            try {
+                const response = await fetch('/Editar/ObterStats');
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('totalCategorias').textContent = data.totalCategorias;
+                    document.getElementById('totalProdutos').textContent = data.totalProdutos;
+                    document.getElementById('totalMaisVendidos').textContent = data.totalMaisVendidos;
+                }
+            } catch (error) { console.error('Erro ao atualizar stats:', error); }
+        }
+
+        // ==================== Event Listeners ====================
+
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+                if (event.target.id === 'modalProduto') { document.getElementById('fileInput').value = ''; document.getElementById('imagePreview').style.display = 'none'; }
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modalCategoria = document.getElementById('modalCategoria');
+                const modalProduto = document.getElementById('modalProduto');
+                if (modalCategoria.classList.contains('show')) modalCategoria.classList.remove('show');
+                if (modalProduto.classList.contains('show')) { modalProduto.classList.remove('show'); document.getElementById('fileInput').value = ''; document.getElementById('imagePreview').style.display = 'none'; }
+                fecharConfirmModal();
+            }
+        });
+    </script>
+}
