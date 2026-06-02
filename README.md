@@ -148,7 +148,7 @@ O sistema foi desenvolvido com foco em experiência mobile e desktop.
 ### Clone o projeto
 
 ```bash
-git clone https://github.com/seu-usuario/anota-pedidos.git
+git clone https://github.com/kalinybatista/Anota_Pedidos
 ```
 
 ### Entre na pasta
@@ -221,11 +221,10 @@ Adicione imagens do sistema nesta seção.
 
 ## 👨‍💻 Desenvolvedor
 
-Projeto desenvolvido por [Seu Nome].
+Projeto desenvolvido por Kaliny .
 
-GitHub: https://github.com/seu-usuario
+GitHub: https://github.com/kalinybatista
 
-LinkedIn: https://linkedin.com/in/seu-perfil
 
 ---
 
